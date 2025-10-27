@@ -1,13 +1,16 @@
 (function () {
+	/* 
+        SharePoint Tool Api Demo (Sgart.it)
+		javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
+	 */
     let serverRelativeUrlPrefix = "/";
+	const VERSION = "1.1.2025-10-27";
 
     function injectStyle() {
         const css = `
             .sgart-content {
                 font-family: Arial, sans-serif;
-                border: 2px solid #000;
-                border-radius: 5px; 
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border: 0;
                 display: flex;
                 flex-direction: column;
                 position: fixed;
@@ -24,7 +27,7 @@
                     font-family: Arial, sans-serif;
                     font-size: 14px;
                     height: 32px;
-                    padding: 0px;
+                    padding: 0 10px;
                     border: 1px solid rgb(149, 60, 15);
                     background-color: white;
                 }
@@ -64,6 +67,17 @@
                     height: 33px;
                     margin-right: 10px;
                 }
+			.sgart-toolbar{
+				display:flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+			}
+			.sgart-toolbar-left{
+			}
+			.sgart-toolbar-right{
+				justify-content: right;
+			}
             .sgart-body {
                 display: flex;
                 flex-direction: column;
@@ -107,7 +121,7 @@
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => {
-                console.log('Text copied to clipboard:', text);
+                //console.log('Text copied to clipboard:', text);
             })
             .catch(err => {
                 console.error('Failed to copy text: ', err);
@@ -237,31 +251,17 @@
                         {
                             id: "getViews",
                             title: "Get views",
-                            url: "web/lists/getbytitle('Documents')/views",
-                            "query": {
-                                top: 100,
-                                orderBy: "Title"
-                            }
+                            url: "web/lists/getbytitle('Documents')/views?$top=100&$orderBy=Title"
                         },
                         {
                             id: "getViewsHidden",
                             title: "Get views hidden",
-                            url: "web/lists/getbytitle('Documents')/views",
-                            "query": {
-                                top: 100,
-                                select: "Id, Title, ServerRelativeUrl, ViewQuery",
-                                filter: "Hidden eq true",
-                                orderBy: "Title"
-                            }
+                            url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderBy=Title&$filter=Hidden eq true"
                         },
                         {
                             id: "getContenttypes",
                             title: "Get content types",
-                            url: "web/lists/getbytitle('Documents')/contenttypes",
-                            "query": {
-                                select: "*",
-                                orderBy: "Name"
-                            }
+                            url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderBy=Name"
                         },
                     ]
                 },
@@ -281,12 +281,8 @@
                         },
                         {
                             id: "getItemByIdWithSelect",
-                            title: "Get item by id with select",
-                            url: "web/lists/getbytitle('Documents')/items(1)",
-                            query: {
-                                select: "Title,Id",
-                                orderBy: "Title asc"
-                            }
+                            title: "Get item by id with select and expand",
+                            url: "web/lists/getbytitle('Documents')/items(1)?$select=Title,Id,Created,Modified,Author/Title,Editor/Title&$expand=Author,Editor"
                         },
                         {
                             id: "getItemAttachments",
@@ -484,7 +480,7 @@
         interfaceDiv.innerHTML = `
             <div class="sgart-header">
                 <a href="https://www.sgart.it" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
-                <h3>Tool SharePoint API Demo (Vanilla JS) - v. 1.0</h3>
+                <h3>Tool SharePoint API Demo (Vanilla JS)</h3>
                 <button id="sgart-close" class="sgart-button">Close</button>
             </div>
             <div class="sgart-body">
@@ -499,15 +495,18 @@
                     </select>
                 </div>
                 <div class="sgart-toolbar">
-                    <button id="sgart-execute" class="sgart-button">Execute</button>
-                    <span class="sgart-separator">|</span>
-                    <button id="sgart-clear-output" class="sgart-button">Clear</button>
-                    <button id="sgart-copy-output" class="sgart-button">Copy</button>
-                    <!--
-                    <span class="sgart-separator">|</span>
-                    <button id="sgart-tab-response" class="sgart-button">Response</button>
-                    <button id="sgart-tab-table" class="sgart-button">Table</button>
-                    -->
+					<div class="sgart-toolbar-left">
+						<button id="sgart-execute" class="sgart-button">Execute</button>
+						<span class="sgart-separator">|</span>
+						<button id="sgart-clear-output" class="sgart-button">Clear</button>
+						<button id="sgart-copy-output" class="sgart-button">Copy</button>
+						<!--
+						<span class="sgart-separator">|</span>
+						<button id="sgart-tab-response" class="sgart-button">Response</button>
+						<button id="sgart-tab-table" class="sgart-button">Table</button>
+						-->
+					</div>
+					<div class="sgart-toolbar-right">v. ${VERSION}</div>
                 </div>
                 <div class="sgart-output-area">
                     <textarea id="sgart-output"></textarea>
@@ -543,7 +542,6 @@
             const txt = await response.json();
             throw new Error(`Response status: ${response.status}, ${response.statusText}, ${txt}`);
         }
-        //console.debug("fetchGetJson: OK " + url);
         const data = await response.json();
         if (outputNormal)
             return data;
@@ -568,14 +566,6 @@
     }
 
     function init() {
-        /*fetchGetJson("_api/web?$select=ServerRelativeUrl").then(data => {
-            if (data && data.ServerRelativeUrl) {
-                ServerRelativeUrlPrefix = data.ServerRelativeUrl;
-                console.log("Detected ServerRelativeUrl: " + ServerRelativeUrlPrefix);
-            }
-        }).catch(error => {
-            console.warn("Error detecting ServerRelativeUrl: " + error.message);
-        };*/
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
             serverRelativeUrlPrefix = window.location.pathname.substring(0, window.location.pathname.indexOf('/', i + 7)) + "/";
@@ -587,8 +577,8 @@
         showInterface();
         document.getElementById('sgart-execute').onclick = executeApiCall;
 
-        console.log("Sgart.it SharePoint API Test Interface initialized.");
-        console.log(fetchGetJson.toString());
+        console.log("Sgart.it SharePoint API Test Interface initialized v." + VERSION);
+        //console.log(fetchGetJson.toString());
     }
 
     init();
