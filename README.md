@@ -9,10 +9,10 @@ JavaScript da iniettare in una pagina SharePoint per testare le chiamate GET all
 
 ## Version history
 
-| Version | Date       | Comments                         |
-| ------- | -----------| -------------------------------- |
-| 1.1     | 2025-10-27 | fix                              |
-| 1.0     | 2025-10-26 | Initial release                  |
+| Version | Date       | Comments                                          |
+| ------- | -----------| ------------------------------------------------- |
+| 1.1     | 2025-10-27 | Update version and enhance toolbar layout         |
+| 1.0     | 2025-10-26 | Initial release                                   |
 
 ## Disclaimer
 
