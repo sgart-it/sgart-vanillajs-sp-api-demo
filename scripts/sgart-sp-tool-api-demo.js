@@ -1,13 +1,33 @@
 (function () {
-	/* 
+    /* 
         SharePoint Tool Api Demo (Sgart.it)
-		javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
-	 */
+        javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
+     */
     let serverRelativeUrlPrefix = "/";
-	const VERSION = "1.1.2025-10-27";
+    const VERSION = "1.1.2025-11-01";
+    const LOG_SOURCE = "Sgart.it SharePoint API Demo";
+    const HTML_ID_BTN_CLOSE = "sgart-close";
+    const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-clear-output";
+    const HTML_ID_BTN_COPY_OUTPUT = "sgart-copy-output";
+    const HTML_ID_OUTPUT_JSON = "sgart-output-json";
+    const HTML_ID_OUTPUT_TABLE = "sgart-output-table";
+    const HTML_ID_TAB_RESPONSE = "sgart-tab-response";
+    const HTML_ID_TAB_TABLE = "sgart-tab-table";
+    let currentTab = 'response'; // 'response' | 'table'
+
 
     function injectStyle() {
         const css = `
+            :root{
+                --sgart-primary-color: rgb(167, 68, 17);
+                --sgart-primary-color-light: rgb(167, 68, 17, .5);
+                --sgart-primary-color-hover: rgb(149, 60, 15);
+                --sgart-primary-color-dark: #7a320d;
+                --sgart-secondary-color: #080808;
+                --sgart-secondary-color-dark: #060606;
+                --sgart-secondary-color-white: #ffffff;
+                --sgart-secondary-color-gray-light: #cccccc;
+            }
             .sgart-content {
                 font-family: Arial, sans-serif;
                 border: 0;
@@ -18,7 +38,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: white;
+                background-color: var(--sgart-secondary-color-white);
                 margin: 0;
                 padding: 0;
                 z-index: 10000;
@@ -28,8 +48,8 @@
                     font-size: 14px;
                     height: 32px;
                     padding: 0 10px;
-                    border: 1px solid rgb(149, 60, 15);
-                    background-color: white;
+                    border: 1px solid var(--sgart-primary-color);
+                    background-color: var(--sgart-secondary-color-white);
                 }
                 .sgart-content select {
                     width: 110px;
@@ -38,20 +58,30 @@
                     width: 200px;
                 }
                 .sgart-content .sgart-button  {
-                    background-color: rgb(149, 60, 15);
+                    background-color: var(--sgart-primary-color);
                     color: white;
                     padding: 0px 20px;
                     cursor: pointer;
+                    width: 110px;
+                }
+                .sgart-content .sgart-button.sgart-button-tab {
+                    background-color: var(--sgart-primary-color-light);
+                    color: var(--sgart-secondary-color);
+                }
+                .sgart-content .sgart-button.selected, .sgart-content .sgart-button:hover, .sgart-content .sgart-button.sgart-button-tab.selected, .sgart-content .sgart-button.sgart-button-tab:hover {
+                    background-color: var(--sgart-primary-color-hover);
+                    color: var(--sgart-secondary-color-white);
+                    font-weight: bold;
                 }
                 .sgart-content .sgart-separator{
                     margin: 0px 10px;
                 }
 
             .sgart-header {
-                background-color: #080808;  
+                background-color: var(--sgart-secondary-color);  
                 color: white;
                 padding: 10px;
-                border-bottom: 1px solid #ccc;
+                border-bottom: 1px solid var(--sgart-secondary-color-gray-light:);
                 height: 40px;
                 display: flex;
                 flwex-direction: row;
@@ -59,8 +89,8 @@
                 justify-content: space-between;
             }       
                 .sgart-header .sgart-button  {
-                    background-color: #080808;
-                    color: white;
+                    background-color: var(--sgart-secondary-color);
+                    color: var(--sgart-secondary-color-white);
                     padding: 0px 20px;
                 }
                 .sgart-header .logo {
@@ -97,8 +127,20 @@
             .sgart-output-area {
                 flex-grow: 1;   
                 display: flex;
+                overflow: hidden;
+                position: relative;
             }
-            #sgart-output {
+            .sgart-output-area > div {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;    
+                overflow: auto;
+                flex-grow: 1;   
+                display: flex;
+            }
+            #${HTML_ID_OUTPUT_JSON} {
                 width: 100%;    
                 height: 100%;
                 flex-grow: 1;
@@ -126,6 +168,140 @@
             .catch(err => {
                 console.error('Failed to copy text: ', err);
             });
+    }
+
+    function buildHtmlTableFromJson(json) {
+
+        const buildTableItem = (item) => {
+            const table = {
+                columns: [
+                    {
+                        key: 'internalName',
+                        name: 'InternalName',
+                        fieldName: 'internalName',
+                        minWidth: 250,
+                        isRowHeader: true,
+                        isResizable: true
+                    },
+                    {
+                        key: 'value',
+                        name: 'Value',
+                        fieldName: 'value',
+                        minWidth: 450,
+                        isResizable: true
+                    }
+                ],
+                items: []
+            };
+
+            if (item) {
+                table.items = Object.keys(item).map(key => {
+                    const value = item[key];
+                    if (typeof value === 'object') {
+                        return { internalName: key, value: JSON.stringify(value, null, 2) };
+                    }
+                    return { internalName: key, value };
+                });
+            }
+            return table;
+        };
+
+        const buildTableItems = (items) => {
+            const table = {
+                columns: [],
+                items: []
+            };
+
+            if (!items || items.length === 0) {
+                return table;
+            }
+
+            const item = items[0];
+            if (item) {
+                table.columns = Object.keys(item).map(key => ({
+                    key,
+                    name: key,
+                    fieldName: key,
+                    minWidth: 50,
+                    isResizable: true
+                }));
+
+                const newItems = [];
+                items.forEach(item => {
+                    const ni = {};
+                    Object.keys(item).forEach(key => {
+                        const value = item[key];
+                        ni[key] = typeof value === 'object'
+                            ? JSON.stringify(value, null, 2)
+                            : value;
+                    });
+                    newItems.push(ni);
+                });
+                table.items = newItems;
+
+            }
+            return table;
+        };
+
+        const buildTable = (items) => {
+            if (!items) {
+                console.debug(LOG_SOURCE, 'buildTable: items is undefined or null');
+                return { columns: [], items: [] };
+            }
+
+            if (items.value && Array.isArray(items.value)) {
+                const table = buildTableItems(items.value);
+                console.debug(LOG_SOURCE, 'buildTable: items.value is an array', table);
+                return table;
+            }
+
+            if (items.value && Array.isArray(items.value)) {
+                const table = buildTableItems(items.value);
+                console.debug(LOG_SOURCE, 'buildTable: items.value is an array', table);
+                return table;
+            }
+
+            if (items.d) {
+                if (items.d.results && Array.isArray(items.d.results)) {
+                    const table = buildTableItems(items.d.results);
+                    console.debug(LOG_SOURCE, 'buildTable: items.d.results is an array', table);
+                    return table;
+                } else {
+                    const table = buildTableItem(items.d);
+                    console.debug(LOG_SOURCE, 'buildTable: items.d is a single object', table);
+                    return table;
+                }
+            }
+
+            if (Array.isArray(items)) {
+                const table = buildTableItems(items);
+                console.debug(LOG_SOURCE, 'buildTable: items is an array', table);
+                return table;
+            }
+            return buildTableItem(items);
+        };
+
+        const renderTable = (table) => {
+            let html = '<table border="1" cellpadding="5" cellspacing="0"><thead><tr>';
+            table.columns.forEach(col => {
+                html += `<th>${col.name}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            table.items.forEach(item => {
+                html += '<tr>';
+                table.columns.forEach(col => {
+                    html += `<td>${item[col.fieldName]}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            return html;
+        };
+
+        const tableItems = buildTable(json);
+        const html = renderTable(tableItems);
+
+        return html;
     }
 
     function getQueryParam(query) {
@@ -461,7 +637,8 @@
         });
         select.onchange = function () {
             document.getElementById('sgart-input').value = this.value;
-            document.getElementById('sgart-output').value = "";
+            document.getElementById(HTML_ID_OUTPUT_JSON).value = "";
+            document.getElementById(HTML_ID_OUTPUT_TABLE).value = "";
         };
 
         document.querySelector('#sgart-api-demo [data-action=getWeb]').selected = true;
@@ -481,7 +658,7 @@
             <div class="sgart-header">
                 <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
                 <h3>Tool SharePoint API Demo (Vanilla JS)</h3>
-                <button id="sgart-close" class="sgart-button">Close</button>
+                <button id="${HTML_ID_BTN_CLOSE}" class="sgart-button">Close</button>
             </div>
             <div class="sgart-body">
                 <div class="sgart-input-area">
@@ -498,37 +675,22 @@
 					<div class="sgart-toolbar-left">
 						<button id="sgart-execute" class="sgart-button">Execute</button>
 						<span class="sgart-separator">|</span>
-						<button id="sgart-clear-output" class="sgart-button">Clear</button>
-						<button id="sgart-copy-output" class="sgart-button">Copy</button>
-						<!--
+						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button">Clear</button>
+						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button">Copy</button>
 						<span class="sgart-separator">|</span>
-						<button id="sgart-tab-response" class="sgart-button">Response</button>
-						<button id="sgart-tab-table" class="sgart-button">Table</button>
-						-->
+						<button id="${HTML_ID_TAB_RESPONSE}" class="sgart-button sgart-button-tab" data-tab="response" data-tab-control-id="${HTML_ID_OUTPUT_JSON}">Response</button>
+						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="table" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}">Table</button>
 					</div>
 					<div class="sgart-toolbar-right">v. ${VERSION}</div>
                 </div>
                 <div class="sgart-output-area">
-                    <textarea id="sgart-output"></textarea>
+                    <div>
+                        <textarea id="${HTML_ID_OUTPUT_JSON}"></textarea>
+                        <div id="${HTML_ID_OUTPUT_TABLE}"></div>
+                    </div>
                 </div>
             </div>
         `;
-        interfaceDiv.querySelector('#sgart-close').onclick = function () {
-            document.body.removeChild(interfaceDiv);
-            const style = document.head.getElementsByClassName('sgart-inject-style')[0];
-            if (style) {
-                document.head.removeChild(style);
-            }
-        };
-
-        interfaceDiv.querySelector('#sgart-clear-output').onclick = function () {
-            document.getElementById('sgart-output').value = "";
-        };
-
-        interfaceDiv.querySelector('#sgart-copy-output').onclick = function () {
-            copyToClipboard(document.getElementById('sgart-output').value);
-        };
-
         document.body.appendChild(interfaceDiv);
 
         loadAPiUrlOptions();
@@ -555,17 +717,72 @@
 
     function executeApiCall() {
         const input = document.getElementById('sgart-input').value;
-        const outputArea = document.getElementById('sgart-output');
+        const outputArea = document.getElementById(HTML_ID_OUTPUT_JSON);
         const modeVerbose = document.getElementById('sgart-odata-mode').value === 'verbose';
         outputArea.value = "Executing...";
         fetchGetJson(input, modeVerbose).then(data => {
             outputArea.value = JSON.stringify(data, null, 2);
+
+            const tableHtml = buildHtmlTableFromJson(data);
+            const tableArea = document.getElementById(HTML_ID_OUTPUT_TABLE);
+            tableArea.innerHTML = tableHtml;
         }).catch(error => {
             outputArea.value = "Error: " + error.message;
         });
     }
 
+    function switchTab(event) {
+        currentTab = event.currentTarget.getAttribute('data-tab');
+        const tabs = document.getElementsByClassName('sgart-button-tab');
+        Array.from(tabs).forEach(btn => {
+            btn.classList.remove('selected');
+            const dataTab = btn.getAttribute('data-tab');
+            const controlId = btn.getAttribute('data-tab-control-id');
+            const controlElem = document.getElementById(controlId);
+            if (dataTab === currentTab) {
+                btn.classList.add('selected');
+                controlElem.style.display = 'flex';
+            } else {
+                btn.classList.remove('selected');
+                controlElem.style.display = 'none';
+            }
+        });
+    }
+
+    function addEvents() {
+        document.getElementById('sgart-execute').onclick = executeApiCall;
+
+        document.getElementById(HTML_ID_BTN_CLOSE).onclick = function () {
+            document.body.removeChild(interfaceDiv);
+            const style = document.head.getElementsByClassName('sgart-inject-style')[0];
+            if (style) {
+                document.head.removeChild(style);
+            }
+        };
+
+        document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).onclick = function () {
+            document.getElementById(HTML_ID_OUTPUT_JSON).value = "";
+            document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML = "";
+        };
+
+        document.getElementById(HTML_ID_BTN_COPY_OUTPUT).onclick = function () {
+            if (currentTab === 'table') {
+                copyToClipboard(document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML);
+                return;
+            }
+            copyToClipboard(document.getElementById(HTML_ID_OUTPUT_JSON).value);
+        };
+
+        const tabs = document.getElementsByClassName('sgart-button-tab');
+        Array.from(tabs).forEach(btn => {
+            btn.onclick = switchTab;
+        });
+        tabs[0].click();
+    }
+
     function init() {
+        console.log("Sgart.it SharePoint API Test Interface initialized v." + VERSION);
+
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
             serverRelativeUrlPrefix = window.location.pathname.substring(0, window.location.pathname.indexOf('/', i + 7)) + "/";
@@ -575,9 +792,8 @@
 
         injectStyle();
         showInterface();
-        document.getElementById('sgart-execute').onclick = executeApiCall;
+        addEvents();
 
-        console.log("Sgart.it SharePoint API Test Interface initialized v." + VERSION);
         //console.log(fetchGetJson.toString());
     }
 
