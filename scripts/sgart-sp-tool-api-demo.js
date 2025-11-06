@@ -3,15 +3,20 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    let serverRelativeUrlPrefix = "/";
-    const VERSION = "1.1.2025-11-06";
+    const VERSION = "1.2025-11-07";
+
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
     const HTML_ID_WRAPPER = "sgart-content-wrapper";
 
+    const HTML_ID_PUPUP = "sgart-popup";
+    const HTML_ID_PUPUP_CONTENT = "sgart-popup-body";
+    const HTML_ID_BTN_POPUP_CLOSE = "sgart-btn-popup-close";
+
     const HTML_ID_BTN_CLOSE = "sgart-btn-close";
     const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-btn-clear-output";
     const HTML_ID_BTN_COPY_OUTPUT = "sgart-btn-copy-output";
+    const HTML_ID_BTN_EXAMPLES = "sgart-btn-examples";
 
     const HTML_ID_OUTPUT_RAW = "sgart-output-raw";
     const HTML_ID_OUTPUT_SIMPLE = "sgart-output-simple";
@@ -28,7 +33,13 @@
     const TAB_KEY_SIMPLE = 'symple';
     const TAB_KEY_TABLE = 'table';
     let currentTab = TAB_KEY_SIMPLE;
+    let serverRelativeUrlPrefix = "/";
 
+    // encode dei caratteri in html
+    String.prototype.htmlEncode = function () {
+        const node = document.createTextNode(this);
+        return document.createElement("a").appendChild(node).parentNode.innerHTML.replace(/'/g, "&#39;").replace(/"/g, "&#34;");
+    };
 
     function injectStyle() {
         const css = `
@@ -68,7 +79,7 @@
                     box-sizing: border-box;
                 }
                 .sgart-content-wrapper select {
-                    width: 110px;
+                    width: 150px;
                 }
                 .sgart-content-wrapper #sgart-api-demo {
                     width: 200px;
@@ -188,6 +199,77 @@
                 top: 0;
                 z-index: 1000;
                 padding: 5px;
+            }
+            .sgart-popup {
+                position: fixed;
+                display: none;   /*flex;*/
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgb(0, 0, 0, 0.5);
+                z-index: 10001;
+                padding: 10px;
+            }
+            .sgart-popup .sgart-popup-wrapper {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background-color: var(--sgart-secondary-color-white);
+                border: 2px solid var(--sgart-primary-color);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 10002;
+            }
+            .sgart-popup .sgart-pupup-header {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                height: 40px;
+                border-bottom: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
+            }
+            .sgart-popup .sgart-popup-body {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                hight: 100%;
+                overflow-x: hideden;
+                overflow-y: auto;
+            }
+            .sgart-popup .sgart-popup-group {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                hight: 100%;
+            }
+            .sgart-popup .sgart-popup-group > div {
+                display: flex;
+                flex-direction: row;
+                jsutify-content: space-between;
+                padding: 10px;
+                hight: 100%;
+                flex-wrap: wrap;
+            }
+            .sgart-popup .sgart-popup-action {  
+                border: 1px solid var(--sgart-primary-color);
+                padding: 10px;
+                margin: 5px;
+                cursor: pointer;
+                width: 45%;
+                overflow: hidden;
+                text-align: left;
+                background-color: var(--sgart-secondary-color-white);
+            }
+            .sgart-popup .sgart-popup-action h4 {
+                margin: 10px 0;
+                font-size: 16px;
+            }
+            .sgart-popup .sgart-popup-action p {
+                word-wrap: break-word;
+                margin: 10px 0;
             }
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
@@ -661,36 +743,24 @@
             ]
         };
 
-        const select = document.getElementById('sgart-api-demo');
-        const optionEmpty = document.createElement('option');
-        optionEmpty.value = "";
-        optionEmpty.text = "API URL";
-        select.appendChild(optionEmpty);
-
+        var s = "";
         configs.groups.forEach(group => {
-            const optGroup = document.createElement('optgroup');
-            optGroup.label = group.title;
+            s +="<div class='sgart-popup-group'><h3>" + group.title.htmlEncode() + "</h3><div>";
             group.actions.forEach(action => {
                 const relativeUrl = '_api/' + action.url + getQueryParam(action.query);
-                const option = document.createElement('option');
-                option.value = serverRelativeUrlPrefix + relativeUrl;
-                option.text = action.title + ": [ " + relativeUrl + " ]";
-                option.setAttribute('data-group', group.id);
-                option.setAttribute('data-action', action.id);
-                optGroup.appendChild(option);
+                const url = (serverRelativeUrlPrefix + relativeUrl).htmlEncode();
+                const title = action.title.htmlEncode();
+                s += "<button class='sgart-popup-action'"
+                    + " data-url=\"" + url + "\""
+                    + " data-group=\"" + group.id + "\""
+                    + " data-action=\"" + action.id + "\""
+                    + " title=\"" + url + "\""
+                    + "><h4>" + title + "</h4><p>" + relativeUrl + "</p>"
+                    + "</button>";
             });
-            select.appendChild(optGroup);
+            s+="</div></div>";
         });
-        select.onchange = function () {
-            document.getElementById(HTML_ID_TXT_INPUT).value = this.value;
-            document.getElementById(HTML_ID_OUTPUT_RAW).value = "";
-            document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
-            document.getElementById(HTML_ID_OUTPUT_TABLE).value = "";
-        };
-
-        document.querySelector('#sgart-api-demo [data-action=getWeb]').selected = true;
-        select.onchange();
-        handleExecuteClickEvent();
+        document.getElementById(HTML_ID_PUPUP_CONTENT).innerHTML = s;
     }
 
     function showInterface() {
@@ -711,27 +781,28 @@
                 <div class="sgart-input-area">
                     <label for="${HTML_ID_TXT_INPUT}">API url:</label>
                     <input type="text" id="${HTML_ID_TXT_INPUT}" class="sgart-input" value="web/lists">
-                    <select id="sgart-api-demo" title="Example API URL">
-                    </select>
-                    <select id="sgart-odata-mode" title="OData http header accept">
-                        <option value="nometadata" selected>No Metadata [accept:application/json; odata=nometadata]</option>
-                        <option value="verbose">OData Verbose [accept:application/json; odata=verbose]</option>
+                    <select id="sgart-odata-mode" title="OData http header 'accept'">
+                        <option value="nometadata" selected>Nometadata [accept:application/json; odata=nometadata]</option>
+                        <option value="verbose">Verbose [accept:application/json; odata=verbose]</option>
                     </select>
                 </div>
                 <div class="sgart-toolbar">
 					<div class="sgart-toolbar-left">
-						<button id="${HTML_ID_BTN_EXECUTE}" class="sgart-button">Execute</button>
+						<button id="${HTML_ID_BTN_EXECUTE}" class="sgart-button" title="Execute api call">Execute</button>
 						<span class="sgart-separator">|</span>
-						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button">Clear</button>
-						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button">Copy</button>
+						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button" title="Clear all outputs">Clear</button>
+						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button" title="Copy current response">Copy</button>
 						<span class="sgart-separator">|</span>
                         <span>Response:</span>
 						<button id="${HTML_ID_TAB_RAW}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_RAW}" data-tab-control-id="${HTML_ID_OUTPUT_RAW}" title="API Response">RAW</button>
 						<button id="${HTML_ID_TAB_SIMPLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_SIMPLE}" data-tab-control-id="${HTML_ID_OUTPUT_SIMPLE}" title="Response with 'value' or 'd' property removed">Simple</button>
 						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
+                        <span class="sgart-separator">|</span>
+                        <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples">Examples</button>
 					</div>
 					<div class="sgart-toolbar-right">v. ${VERSION}</div>
                 </div>
+
                 <div class="sgart-output-area">
                     <div>
                         <textarea id="${HTML_ID_OUTPUT_RAW}" class="sgart-output-txt"></textarea>
@@ -740,6 +811,17 @@
                     </div>
                 </div>
             </div>
+            <div id="${HTML_ID_PUPUP}" class="sgart-popup">
+                <div class="sgart-popup-wrapper">
+                    <div class="sgart-pupup-header">
+                        <h2>Examples and usage</h2>
+                        <button id="${HTML_ID_BTN_POPUP_CLOSE}" class="sgart-button" data-action="popup-close" title="Response formatted as table (beta)">Close</button>
+                    </div>
+                    <div id="${HTML_ID_PUPUP_CONTENT}" class="sgart-popup-body">
+                        Visit the <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank">dedicated post</a> to see examples and usage instructions.
+                    </div>
+                </div>
+            </div>            
         `;
         document.body.appendChild(interfaceDiv);
 
@@ -767,6 +849,27 @@
         return data.value ?? data;
         */
     };
+
+    function popupShow() {
+        const popup = document.getElementById(HTML_ID_PUPUP);
+        popup.style.display = 'flex';   
+    }
+
+    function popupHide() {
+        const popup = document.getElementById(HTML_ID_PUPUP);
+        popup.style.display = 'none';   
+    }
+
+    function handlePopupSingleExampleClickEvent(event) {
+        const target = event.target;
+        const actionElem = target.closest('.sgart-popup-action');   
+        if (actionElem) {
+            const url = actionElem.getAttribute('data-url');    
+            document.getElementById(HTML_ID_TXT_INPUT).value = url;
+            popupHide();
+            handleExecuteClickEvent();
+        }
+    }
 
 
     function handleExecuteKeydownEvent(event) {
@@ -823,21 +926,27 @@
     }
 
     function handleCloseClickEvent() {
+        const interfaceDiv = document.getElementById(HTML_ID_WRAPPER);
         document.body.removeChild(interfaceDiv);
         const style = document.head.getElementsByClassName('sgart-inject-style')[0];
         if (style) {
             document.head.removeChild(style);
         }
+        console.log(LOG_SOURCE, "Interface closed");
     }
 
-    function addEvents() {
-        const btnExecute = document.getElementById(HTML_ID_BTN_EXECUTE);
-        btnExecute.addEventListener("click", handleExecuteClickEvent);
 
-        const txtInput = document.getElementById(HTML_ID_TXT_INPUT);
-        txtInput.addEventListener("keydown", handleExecuteKeydownEvent);
+    function addEvents() {
+        document.getElementById(HTML_ID_BTN_EXECUTE).addEventListener("click", handleExecuteClickEvent);
+
+        document.getElementById(HTML_ID_TXT_INPUT).addEventListener("keydown", handleExecuteKeydownEvent);
 
         document.getElementById(HTML_ID_BTN_CLOSE).addEventListener("click", handleCloseClickEvent);
+
+        document.getElementById(HTML_ID_BTN_EXAMPLES).addEventListener("click", popupShow);
+        document.getElementById(HTML_ID_BTN_POPUP_CLOSE).addEventListener("click", popupHide);
+        document.getElementById(HTML_ID_PUPUP).addEventListener("click", handlePopupSingleExampleClickEvent);
+        document.querySelector('.sgart-content-wrapper [data-action=getWeb]').click();
 
         document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).onclick = function () {
             document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
@@ -862,11 +971,10 @@
     }
 
     function init() {
-        console.log(LOG_SOURCE, "v." + VERSION);
+        console.log(LOG_SOURCE, `v.${VERSION} - https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post`);
 
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
-            console.log(LOG_SOURCE, "Site detected in URL /sites/", i);
             const j = window.location.pathname.indexOf('/', i + 7);
             if (j >= 0) {
                 serverRelativeUrlPrefix = window.location.pathname.substring(i, j + 1);
