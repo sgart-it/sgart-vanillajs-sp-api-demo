@@ -5,7 +5,7 @@
      */
     let serverRelativeUrlPrefix = "/";
     const VERSION = "1.1.2025-11-05";
-    const LOG_SOURCE = "Sgart.it SharePoint API Demo";
+    const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
     const HTML_ID_BTN_CLOSE = "sgart-close";
     const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-clear-output";
     const HTML_ID_BTN_COPY_OUTPUT = "sgart-copy-output";
@@ -795,7 +795,7 @@
     }
 
     function init() {
-        console.log("Sgart.it SharePoint API Test Interface v." + VERSION);
+        console.log(LOG_SOURCE, "v." + VERSION);
 
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
