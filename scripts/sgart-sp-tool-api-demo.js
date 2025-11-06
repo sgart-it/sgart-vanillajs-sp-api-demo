@@ -4,18 +4,30 @@
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
     let serverRelativeUrlPrefix = "/";
-    const VERSION = "1.1.2025-11-05";
+    const VERSION = "1.1.2025-11-06";
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
-    const HTML_ID_BTN_CLOSE = "sgart-close";
-    const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-clear-output";
-    const HTML_ID_BTN_COPY_OUTPUT = "sgart-copy-output";
-    const HTML_ID_OUTPUT_JSON = "sgart-output-json";
+
+    const HTML_ID_WRAPPER = "sgart-content-wrapper";
+
+    const HTML_ID_BTN_CLOSE = "sgart-btn-close";
+    const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-btn-clear-output";
+    const HTML_ID_BTN_COPY_OUTPUT = "sgart-btn-copy-output";
+
+    const HTML_ID_OUTPUT_RAW = "sgart-output-raw";
+    const HTML_ID_OUTPUT_SIMPLE = "sgart-output-simple";
     const HTML_ID_OUTPUT_TABLE = "sgart-output-table";
-    const HTML_ID_TAB_RESPONSE = "sgart-tab-response";
-    const HTML_ID_TAB_TABLE = "sgart-tab-table";
+
     const HTML_ID_BTN_EXECUTE = "sgart-btn-execute";
     const HTML_ID_TXT_INPUT = "sgart-txt-input";
-    let currentTab = 'response'; // 'response' | 'table'
+
+    const HTML_ID_TAB_RAW = "sgart-tab-response-raw";
+    const HTML_ID_TAB_SIMPLE = "sgart-tab-response-simple";
+    const HTML_ID_TAB_TABLE = "sgart-tab-response-table";
+
+    const TAB_KEY_RAW = 'raw';
+    const TAB_KEY_SIMPLE = 'symple';
+    const TAB_KEY_TABLE = 'table';
+    let currentTab = TAB_KEY_SIMPLE;
 
 
     function injectStyle() {
@@ -30,7 +42,7 @@
                 --sgart-secondary-color-white: #ffffff;
                 --sgart-secondary-color-gray-light: #cccccc;
             }
-            .sgart-content {
+            .sgart-content-wrapper {
                 font-family: Arial, sans-serif;
                 border: 0;
                 display: flex;
@@ -44,38 +56,46 @@
                 margin: 0;
                 padding: 0;
                 z-index: 10000;
+                box-sizing: border-box;
             }   
-                .sgart-content input, .sgart-content textarea, .sgart-content select, .sgart-content .sgart-button {
+                .sgart-content-wrapper input, .sgart-content-wrapper textarea, .sgart-content-wrapper select, .sgart-content-wrapper .sgart-button {
                     font-family: Arial, sans-serif;
                     font-size: 14px;
                     height: 32px;
                     padding: 0 10px;
                     border: 1px solid var(--sgart-primary-color);
                     background-color: var(--sgart-secondary-color-white);
+                    box-sizing: border-box;
                 }
-                .sgart-content select {
+                .sgart-content-wrapper select {
                     width: 110px;
                 }
-                .sgart-content #sgart-api-demo {
+                .sgart-content-wrapper #sgart-api-demo {
                     width: 200px;
                 }
-                .sgart-content .sgart-button  {
+                .sgart-content-wrapper .sgart-button  {
                     background-color: var(--sgart-primary-color);
                     color: white;
                     padding: 0px 20px;
                     cursor: pointer;
                     width: 110px;
+                    overflow: hidden;
+                    white-space: nowrap;
                 }
-                .sgart-content .sgart-button.sgart-button-tab {
+                .sgart-content-wrapper .sgart-button.sgart-button-tab {
                     background-color: var(--sgart-primary-color-light);
                     color: var(--sgart-secondary-color);
                 }
-                .sgart-content .sgart-button.selected, .sgart-content .sgart-button:hover, .sgart-content .sgart-button.sgart-button-tab.selected, .sgart-content .sgart-button.sgart-button-tab:hover {
+                .sgart-content-wrapper .sgart-button.selected, .sgart-content-wrapper .sgart-button:hover, .sgart-content-wrapper .sgart-button.sgart-button-tab.selected, .sgart-content-wrapper .sgart-button.sgart-button-tab:hover {
                     background-color: var(--sgart-primary-color-hover);
                     color: var(--sgart-secondary-color-white);
                     font-weight: bold;
                 }
-                .sgart-content .sgart-separator{
+                .sgart-button.sgart-button-tab:hover 
+                {
+                    border-color: var(--sgart-secondary-color);
+                }
+                .sgart-content-wrapper .sgart-separator{
                     margin: 0px 10px;
                 }
 
@@ -105,7 +125,12 @@
 				align-items: center;
 				justify-content: space-between;
 			}
-			.sgart-toolbar-left{
+			.sgart-toolbar-left {
+                display: flex;
+                gap: 10px;
+                justify-content: left;
+                align-items: center;
+                flex-wrap: wrap;
 			}
 			.sgart-toolbar-right{
 				justify-content: right;
@@ -141,14 +166,28 @@
                 overflow: auto;
                 flex-grow: 1;   
                 display: flex;
+                box-sizing: border-box;
+                border: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-secondary-color-white);
             }
-            #${HTML_ID_OUTPUT_JSON} {
+            .sgart-content-wrapper .sgart-output-txt, .sgart-content-wrapper .sgart-output-table {
                 width: 100%;    
                 height: 100%;
                 flex-grow: 1;
                 gap: 10px;
                 font-family: monospace;
                 resize: none;
+                box-sizing: border-box;
+                border: none;
+            }
+            .sgart-content-wrapper table th {
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
+                text-align: left;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                padding: 5px;
             }
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
@@ -171,6 +210,36 @@
                 console.error('Failed to copy text: ', err);
             });
     }
+
+    const simplifyObjectOrArray = (response) => {
+        if (!response) {
+            console.debug(LOG_SOURCE, 'response is undefined or null');
+            return {};
+        }
+
+        if (response.value && Array.isArray(response.value)) {
+            console.debug(LOG_SOURCE, 'response.value is an array', response);
+            return response.value
+        }
+
+        if (response.d) {
+            if (response.d.results && Array.isArray(response.d.results)) {
+                console.debug(LOG_SOURCE, 'response.d.results is an array', response);
+                return response.d.results;
+            } else {
+                console.debug(LOG_SOURCE, 'response.d is a single object', response);
+                return response.d;
+            }
+        }
+
+        if (Array.isArray(response)) {
+            console.debug(LOG_SOURCE, 'response is an array', response);
+            return response;
+        }
+        console.debug(LOG_SOURCE, 'response is object', response);
+        return response;
+    };
+
 
     function buildHtmlTableFromJson(json) {
 
@@ -246,41 +315,16 @@
         };
 
         const buildTable = (items) => {
+            const data = simplifyObjectOrArray(items);
+            console.debug(LOG_SOURCE, 'buildTable: items is object', data);
             if (!items) {
                 console.debug(LOG_SOURCE, 'buildTable: items is undefined or null');
                 return { columns: [], items: [] };
             }
-
-            if (items.value && Array.isArray(items.value)) {
-                const table = buildTableItems(items.value);
-                console.debug(LOG_SOURCE, 'buildTable: items.value is an array', table);
-                return table;
+            if (Array.isArray(data)) {
+                return buildTableItems(data);
             }
-
-            if (items.value && Array.isArray(items.value)) {
-                const table = buildTableItems(items.value);
-                console.debug(LOG_SOURCE, 'buildTable: items.value is an array', table);
-                return table;
-            }
-
-            if (items.d) {
-                if (items.d.results && Array.isArray(items.d.results)) {
-                    const table = buildTableItems(items.d.results);
-                    console.debug(LOG_SOURCE, 'buildTable: items.d.results is an array', table);
-                    return table;
-                } else {
-                    const table = buildTableItem(items.d);
-                    console.debug(LOG_SOURCE, 'buildTable: items.d is a single object', table);
-                    return table;
-                }
-            }
-
-            if (Array.isArray(items)) {
-                const table = buildTableItems(items);
-                console.debug(LOG_SOURCE, 'buildTable: items is an array', table);
-                return table;
-            }
-            return buildTableItem(items);
+            return buildTableItem(data);
         };
 
         const renderTable = (table) => {
@@ -404,7 +448,7 @@
                         {
                             id: "getLists",
                             title: "Get lists",
-                            url: "web/lists"
+                            url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderBy=Title"
                         },
                         {
                             id: "getListByGuid",
@@ -450,7 +494,7 @@
                         {
                             id: "getItems",
                             title: "Get items",
-                            url: "web/lists/getbytitle('Documents')/items"
+                            url: "web/lists/getbytitle('Documents')/items?$top=10&$orderBy=Id desc"
                         },
                         {
                             id: "getItemById",
@@ -639,7 +683,8 @@
         });
         select.onchange = function () {
             document.getElementById(HTML_ID_TXT_INPUT).value = this.value;
-            document.getElementById(HTML_ID_OUTPUT_JSON).value = "";
+            document.getElementById(HTML_ID_OUTPUT_RAW).value = "";
+            document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
             document.getElementById(HTML_ID_OUTPUT_TABLE).value = "";
         };
 
@@ -649,13 +694,13 @@
     }
 
     function showInterface() {
-        const interfaceDivPrev = document.getElementById('sgart-content');
+        const interfaceDivPrev = document.getElementById(HTML_ID_WRAPPER);
         if (interfaceDivPrev) {
             document.body.removeChild(interfaceDivPrev);
         }
         const interfaceDiv = document.createElement('div');
-        interfaceDiv.id = 'sgart-content';
-        interfaceDiv.className = 'sgart-content';
+        interfaceDiv.id = HTML_ID_WRAPPER;
+        interfaceDiv.className = 'sgart-content-wrapper';
         interfaceDiv.innerHTML = `
             <div class="sgart-header">
                 <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
@@ -680,15 +725,18 @@
 						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button">Clear</button>
 						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button">Copy</button>
 						<span class="sgart-separator">|</span>
-						<button id="${HTML_ID_TAB_RESPONSE}" class="sgart-button sgart-button-tab" data-tab="response" data-tab-control-id="${HTML_ID_OUTPUT_JSON}">Response</button>
-						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="table" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}">Table</button>
+                        <span>Response:</span>
+						<button id="${HTML_ID_TAB_RAW}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_RAW}" data-tab-control-id="${HTML_ID_OUTPUT_RAW}" title="API Response">RAW</button>
+						<button id="${HTML_ID_TAB_SIMPLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_SIMPLE}" data-tab-control-id="${HTML_ID_OUTPUT_SIMPLE}" title="Response with 'value' or 'd' property removed">Simple</button>
+						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
 					</div>
 					<div class="sgart-toolbar-right">v. ${VERSION}</div>
                 </div>
                 <div class="sgart-output-area">
                     <div>
-                        <textarea id="${HTML_ID_OUTPUT_JSON}"></textarea>
-                        <div id="${HTML_ID_OUTPUT_TABLE}"></div>
+                        <textarea id="${HTML_ID_OUTPUT_RAW}" class="sgart-output-txt"></textarea>
+                        <textarea id="${HTML_ID_OUTPUT_SIMPLE}" class="sgart-output-txt"></textarea>
+                        <div id="${HTML_ID_OUTPUT_TABLE}" class="sgart-output-table"></div>
                     </div>
                 </div>
             </div>
@@ -707,6 +755,8 @@
             throw new Error(`Response status: ${response.status}, ${response.statusText}, ${txt}`);
         }
         const data = await response.json();
+        return data ?? {};
+        /*
         if (outputNormal)
             return data;
         if (odataVerbose) {
@@ -715,33 +765,46 @@
             return data;
         }
         return data.value ?? data;
+        */
     };
 
 
     function handleExecuteKeydownEvent(event) {
         console.log(event);
-        if(event.keyCode===13) {
+        if (event.keyCode === 13) {
             handleExecuteClickEvent();
         }
     }
 
     function handleExecuteClickEvent() {
         const input = document.getElementById(HTML_ID_TXT_INPUT).value;
-        const outputArea = document.getElementById(HTML_ID_OUTPUT_JSON);
+
+        const outputRaw = document.getElementById(HTML_ID_OUTPUT_RAW);
+        const outputPretty = document.getElementById(HTML_ID_OUTPUT_SIMPLE);
+        const outputTable = document.getElementById(HTML_ID_OUTPUT_TABLE);
+        const waitTxt = "Executing...";
+        outputRaw.value = waitTxt;
+        outputPretty.value = waitTxt;
+        outputTable.innerHTML = waitTxt;
+
         const modeVerbose = document.getElementById('sgart-odata-mode').value === 'verbose';
-        outputArea.value = "Executing...";
+
         fetchGetJson(input, modeVerbose).then(data => {
-            outputArea.value = JSON.stringify(data, null, 2);
+            outputRaw.value = JSON.stringify(data, null, 2);
+            outputPretty.value = JSON.stringify(simplifyObjectOrArray(data), null, 2);
 
             const tableHtml = buildHtmlTableFromJson(data);
-            const tableArea = document.getElementById(HTML_ID_OUTPUT_TABLE);
-            tableArea.innerHTML = tableHtml;
+            outputTable.innerHTML = tableHtml;
         }).catch(error => {
-            outputArea.value = "Error: " + error.message;
+            console.error(LOG_SOURCE, "Error executing API request:", error);
+            const msg = "Error: " + error.message;
+            outputRaw.value = msg;
+            outputPretty.value = msg;
+            outputArea.value = msg;
         });
     }
 
-    function switchTab(event) {
+    function handleSwitchTabEvent(event) {
         currentTab = event.currentTarget.getAttribute('data-tab');
         const tabs = document.getElementsByClassName('sgart-button-tab');
         Array.from(tabs).forEach(btn => {
@@ -759,37 +822,41 @@
         });
     }
 
+    function handleCloseClickEvent() {
+        document.body.removeChild(interfaceDiv);
+        const style = document.head.getElementsByClassName('sgart-inject-style')[0];
+        if (style) {
+            document.head.removeChild(style);
+        }
+    }
+
     function addEvents() {
         const btnExecute = document.getElementById(HTML_ID_BTN_EXECUTE);
         btnExecute.addEventListener("click", handleExecuteClickEvent);
 
-        const txtInput =document.getElementById(HTML_ID_TXT_INPUT);
+        const txtInput = document.getElementById(HTML_ID_TXT_INPUT);
         txtInput.addEventListener("keydown", handleExecuteKeydownEvent);
 
-        document.getElementById(HTML_ID_BTN_CLOSE).onclick = function () {
-            document.body.removeChild(interfaceDiv);
-            const style = document.head.getElementsByClassName('sgart-inject-style')[0];
-            if (style) {
-                document.head.removeChild(style);
-            }
-        };
+        document.getElementById(HTML_ID_BTN_CLOSE).addEventListener("click", handleCloseClickEvent);
 
         document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).onclick = function () {
-            document.getElementById(HTML_ID_OUTPUT_JSON).value = "";
+            document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
             document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML = "";
         };
 
         document.getElementById(HTML_ID_BTN_COPY_OUTPUT).onclick = function () {
-            if (currentTab === 'table') {
+            if (currentTab === TAB_KEY_TABLE) {
                 copyToClipboard(document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML);
-                return;
+            } else if (currentTab === TAB_KEY_SIMPLE) {
+                copyToClipboard(document.getElementById(HTML_ID_OUTPUT_SIMPLE).innerHTML);
+            } else {
+                copyToClipboard(document.getElementById(HTML_ID_OUTPUT_SIMPLE).value);
             }
-            copyToClipboard(document.getElementById(HTML_ID_OUTPUT_JSON).value);
         };
 
         const tabs = document.getElementsByClassName('sgart-button-tab');
         Array.from(tabs).forEach(btn => {
-            btn.onclick = switchTab;
+            btn.onclick = handleSwitchTabEvent;
         });
         tabs[0].click();
     }
@@ -799,10 +866,17 @@
 
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
-            serverRelativeUrlPrefix = window.location.pathname.substring(0, window.location.pathname.indexOf('/', i + 7)) + "/";
+            console.log(LOG_SOURCE, "Site detected in URL /sites/", i);
+            const j = window.location.pathname.indexOf('/', i + 7);
+            if (j >= 0) {
+                serverRelativeUrlPrefix = window.location.pathname.substring(i, j + 1);
+            } else {
+                serverRelativeUrlPrefix = window.location.pathname.substring(i) + "/";
+            }
         } else {
             serverRelativeUrlPrefix = "/";
         }
+        console.log(LOG_SOURCE, "Site detected in URL", serverRelativeUrlPrefix);
 
         injectStyle();
         showInterface();
