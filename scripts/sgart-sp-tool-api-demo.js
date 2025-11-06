@@ -4,7 +4,7 @@
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
     let serverRelativeUrlPrefix = "/";
-    const VERSION = "1.1.2025-11-01";
+    const VERSION = "1.1.2025-11-05";
     const LOG_SOURCE = "Sgart.it SharePoint API Demo";
     const HTML_ID_BTN_CLOSE = "sgart-close";
     const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-clear-output";
@@ -13,6 +13,8 @@
     const HTML_ID_OUTPUT_TABLE = "sgart-output-table";
     const HTML_ID_TAB_RESPONSE = "sgart-tab-response";
     const HTML_ID_TAB_TABLE = "sgart-tab-table";
+    const HTML_ID_BTN_EXECUTE = "sgart-btn-execute";
+    const HTML_ID_TXT_INPUT = "sgart-txt-input";
     let currentTab = 'response'; // 'response' | 'table'
 
 
@@ -121,7 +123,7 @@
                 align-items: center;
                 jsutify-content: space-between;
             }
-            #sgart-input {
+            .sgart-input {
                 flex-grow: 1;   
             }
             .sgart-output-area {
@@ -636,14 +638,14 @@
             select.appendChild(optGroup);
         });
         select.onchange = function () {
-            document.getElementById('sgart-input').value = this.value;
+            document.getElementById(HTML_ID_TXT_INPUT).value = this.value;
             document.getElementById(HTML_ID_OUTPUT_JSON).value = "";
             document.getElementById(HTML_ID_OUTPUT_TABLE).value = "";
         };
 
         document.querySelector('#sgart-api-demo [data-action=getWeb]').selected = true;
         select.onchange();
-        executeApiCall();
+        handleExecuteClickEvent();
     }
 
     function showInterface() {
@@ -662,9 +664,9 @@
             </div>
             <div class="sgart-body">
                 <div class="sgart-input-area">
-                    <label for="sgart-input">API url:</label>
-                    <input type="text" id="sgart-input" value="web/lists">
-                    <select id="sgart-api-demo" title="API Demo URLs">
+                    <label for="${HTML_ID_TXT_INPUT}">API url:</label>
+                    <input type="text" id="${HTML_ID_TXT_INPUT}" class="sgart-input" value="web/lists">
+                    <select id="sgart-api-demo" title="Example API URL">
                     </select>
                     <select id="sgart-odata-mode" title="OData http header accept">
                         <option value="nometadata" selected>No Metadata [accept:application/json; odata=nometadata]</option>
@@ -673,7 +675,7 @@
                 </div>
                 <div class="sgart-toolbar">
 					<div class="sgart-toolbar-left">
-						<button id="sgart-execute" class="sgart-button">Execute</button>
+						<button id="${HTML_ID_BTN_EXECUTE}" class="sgart-button">Execute</button>
 						<span class="sgart-separator">|</span>
 						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button">Clear</button>
 						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button">Copy</button>
@@ -715,8 +717,16 @@
         return data.value ?? data;
     };
 
-    function executeApiCall() {
-        const input = document.getElementById('sgart-input').value;
+
+    function handleExecuteKeydownEvent(event) {
+        console.log(event);
+        if(event.keyCode===13) {
+            handleExecuteClickEvent();
+        }
+    }
+
+    function handleExecuteClickEvent() {
+        const input = document.getElementById(HTML_ID_TXT_INPUT).value;
         const outputArea = document.getElementById(HTML_ID_OUTPUT_JSON);
         const modeVerbose = document.getElementById('sgart-odata-mode').value === 'verbose';
         outputArea.value = "Executing...";
@@ -750,7 +760,11 @@
     }
 
     function addEvents() {
-        document.getElementById('sgart-execute').onclick = executeApiCall;
+        const btnExecute = document.getElementById(HTML_ID_BTN_EXECUTE);
+        btnExecute.addEventListener("click", handleExecuteClickEvent);
+
+        const txtInput =document.getElementById(HTML_ID_TXT_INPUT);
+        txtInput.addEventListener("keydown", handleExecuteKeydownEvent);
 
         document.getElementById(HTML_ID_BTN_CLOSE).onclick = function () {
             document.body.removeChild(interfaceDiv);
@@ -781,7 +795,7 @@
     }
 
     function init() {
-        console.log("Sgart.it SharePoint API Test Interface initialized v." + VERSION);
+        console.log("Sgart.it SharePoint API Test Interface v." + VERSION);
 
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
