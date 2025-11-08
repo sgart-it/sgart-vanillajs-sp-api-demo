@@ -3,20 +3,19 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-07";
+    const VERSION = "1.2025-11-08";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
     const HTML_ID_WRAPPER = "sgart-content-wrapper";
 
     const HTML_ID_PUPUP = "sgart-popup";
-    const HTML_ID_PUPUP_CONTENT = "sgart-popup-body";
-    const HTML_ID_BTN_POPUP_CLOSE = "sgart-btn-popup-close";
 
     const HTML_ID_BTN_CLOSE = "sgart-btn-close";
     const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-btn-clear-output";
     const HTML_ID_BTN_COPY_OUTPUT = "sgart-btn-copy-output";
     const HTML_ID_BTN_EXAMPLES = "sgart-btn-examples";
+    const HTML_ID_BTN_HISTORY = "sgart-btn-history";
 
     const HTML_ID_OUTPUT_RAW = "sgart-output-raw";
     const HTML_ID_OUTPUT_SIMPLE = "sgart-output-simple";
@@ -34,6 +33,310 @@
     const TAB_KEY_TABLE = 'table';
     let currentTab = TAB_KEY_SIMPLE;
     let serverRelativeUrlPrefix = "/";
+
+    const EXAMPLES = {
+        groups: [
+            {
+                id: "site",
+                title: "Site",
+                actions: [
+                    {
+                        id: "getSite",
+                        title: "Get site",
+                        url: "site"
+                    },
+                    {
+                        id: "getSiteId",
+                        title: "Get site id",
+                        url: "site/id"
+                    }
+                ]
+            },
+            {
+                id: "web",
+                title: "Web",
+                actions: [
+                    {
+                        id: "getWeb",
+                        title: "Get web",
+                        url: "web"
+                    },
+                    {
+                        id: "getWebById",
+                        title: "Get sub webs",
+                        url: "web/webs"
+                    },
+                    {
+                        id: "getWebSiteUsers",
+                        title: "Get site users",
+                        url: "web/siteusers"
+                    },
+                    {
+                        id: "getWebSiteGrous",
+                        title: "Get site groups",
+                        url: "web/sitegroups"
+                    },
+                    {
+                        id: "getWebRoleDefinitions",
+                        title: "Get site role definitions",
+                        url: "web/roledefinitions"
+                    }
+                ]
+            },
+            {
+                id: "user",
+                title: "User",
+                actions: [
+                    {
+                        id: "getCurrentUser",
+                        title: "Get current user",
+                        url: "web/CurrentUser"
+                    },
+                    {
+                        id: "getUsers",
+                        title: "Get users",
+                        url: "web/SiteUsers"
+                    },
+                    {
+                        id: "getUserById",
+                        title: "Get user by id",
+                        url: "web/GetUserById(1)"
+                    },
+                    {
+                        id: "getGroups",
+                        title: "Get groups",
+                        url: "web/sitegroups"
+                    },
+                    {
+                        id: "getGroupsMembers",
+                        title: "Get group members",
+                        url: "web/sitegroups(1)/users"
+                    },
+                ]
+            },
+            {
+                id: "list",
+                title: "List",
+                actions: [
+                    {
+                        id: "getLists",
+                        title: "Get lists",
+                        url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderBy=Title"
+                    },
+                    {
+                        id: "getListByGuid",
+                        title: "Get list by guid",
+                        url: "web/lists(guid'00000000-0000-0000-0000-000000000000')"
+                    },
+                    {
+                        id: "getListByTitle",
+                        title: "Get list by title",
+                        url: "web/lists/getbytitle('Documents')"
+                    },
+                    {
+                        id: "getListByTitleRootFolder",
+                        title: "Get list by title RootFolder",
+                        url: "web/lists/getbytitle('Documents')/RootFolder"
+                    },
+                    {
+                        id: "getFields",
+                        title: "Get fields",
+                        url: "web/lists/getbytitle('Documents')/fields"
+                    },
+                    {
+                        id: "getViews",
+                        title: "Get views",
+                        url: "web/lists/getbytitle('Documents')/views?$top=100&$orderBy=Title"
+                    },
+                    {
+                        id: "getViewsHidden",
+                        title: "Get views hidden",
+                        url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderBy=Title&$filter=Hidden eq true"
+                    },
+                    {
+                        id: "getContenttypes",
+                        title: "Get content types",
+                        url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderBy=Name"
+                    },
+                ]
+            },
+            {
+                id: "item",
+                title: "Item",
+                actions: [
+                    {
+                        id: "getItems",
+                        title: "Get items",
+                        url: "web/lists/getbytitle('Documents')/items?$top=10&$orderBy=Id desc"
+                    },
+                    {
+                        id: "getItemById",
+                        title: "Get item by id",
+                        url: "web/lists/getbytitle('Documents')/items(1)"
+                    },
+                    {
+                        id: "getItemByIdWithSelect",
+                        title: "Get item by id with select and expand",
+                        url: "web/lists/getbytitle('Documents')/items(1)?$select=Title,Id,Created,Modified,Author/Title,Editor/Title&$expand=Author,Editor"
+                    },
+                    {
+                        id: "getItemAttachments",
+                        title: "Get item attachments",
+                        url: "web/lists/getbytitle('Documents')/items(1)/AttachmentFiles",
+                    }
+                ]
+            },
+            {
+                id: "file",
+                title: "File",
+                actions: [
+                    {
+                        id: "getFileById",
+                        title: "Get file by id",
+                        url: "web/getfilebyid('00000000-0000-0000-0000-000000000000')"
+                    },
+                    {
+                        id: "getFileByServerRelativeUrl",
+                        title: "Get file by server relative url",
+                        url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')"
+                    },
+                    {
+                        id: "getFileContent",
+                        title: "Get file content",
+                        url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')/$value"
+                    }
+                ]
+            },
+            {
+                id: "folder",
+                title: "Folder",
+                actions: [
+                    {
+                        id: "getFolderByServerRelativeUrl",
+                        title: "Get folder by server relative url",
+                        url: "web/getfolderbyserverrelativeurl('Shared Documents')"
+                    },
+                    {
+                        id: "getFolderById",
+                        title: "Get folder by id",
+                        url: "web/getfolderbyid('00000000-0000-0000-0000-000000000000')"
+                    },
+                    {
+                        id: "getFolderFiles",
+                        title: "Get folder files",
+                        url: "web/getfolderbyserverrelativeurl('Shared Documents')/files"
+                    },
+                    {
+                        id: "getFolderFileContent",
+                        title: "Get folder files",
+                        url: "web/getfolderbyserverrelativeurl('/sites/someSite/Shared Documents/file name')/$value"
+                    }
+                ]
+            },
+            {
+                id: "search",
+                title: "Search",
+                actions: [
+                    {
+                        id: "searchSites",
+                        title: "Search sites",
+                        url: "search/query",
+                        query: {
+                            mode: "search",
+                            filter: "sharepoint (contentclass:STS_Site) Path:\"https://sgart.sharepoint.com/*\"",
+                            select: "Title,Path,Description,SiteLogo,WebTemplate,WebId,SiteId,Created,LastModifiedTime"
+                        }
+                    }
+                ]
+            },
+            {
+                id: "userProfile",
+                title: "User Profile",
+                actions: [
+                    {
+                        id: "getPMInstance",
+                        title: "PeopleManager instance",
+                        url: "SP.UserProfiles.PeopleManager"
+                    },
+                    {
+                        id: "getPMFollowedByMe",
+                        title: "Followed by ME",
+                        url: "SP.UserProfiles.PeopleManager/getpeoplefollowedbyme",
+                        query: {
+                            select: "*"
+                        }
+                    },
+                    {
+                        id: "getPMFollowedBy",
+                        title: "Followed by ...",
+                        url: "SP.UserProfiles.PeopleManager/getpeoplefollowedby(@v)?@v='i%3A0%23.f%7Cmembership%7Cuser%40domain.onme",
+                        query: {
+                            select: "*"
+                        }
+                    }
+
+
+                ]
+            },
+            {
+                id: "taxonomy",
+                title: "Taxonomy",
+                actions: [
+                    {
+                        id: "getTermStoreGroups",
+                        title: "Get groups",
+                        url: "v2.1/termStore/groups"
+                    },
+                    {
+                        id: "getTermStoreTermGroups",
+                        title: "Get term groups",
+                        url: "v2.1/termStore/termGroups"
+                    },
+                    {
+                        id: "getTermStoreSets",
+                        title: "Get term sets",
+                        url: "v2.1/termStore/groups/{groupid}/sets"
+                    },
+                    {
+                        id: "getTermStoreSetById",
+                        title: "Get terms by set id",
+                        url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms"
+                    },
+                    {
+                        id: "getTermById",
+                        title: "Get terms by set id next level",
+                        url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms/{termId}/terms"
+                    }
+                ]
+            },
+            {
+                id: "webhooks",
+                title: "Webhooks",
+                actions: [
+                    {
+                        id: "getWebhooks",
+                        title: "Get webhooks",
+                        url: "web/lists/getbytitle('Documents')/subscriptions"
+                    }
+                ]
+            },
+            {
+                id: "tenant",
+                title: "Tenant",
+                actions: [
+                    {
+                        id: "getTenantAppCatalog",
+                        title: "Get tenant app catalog",
+                        url: "SP_TenantSettings_Current"
+                    }
+                ]
+            }
+        ]
+    };
+
+    const MAX_HISTORY_ITEMS = 100;
+    const historyList = [];
+
 
     // encode dei caratteri in html
     String.prototype.htmlEncode = function () {
@@ -207,9 +510,9 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: rgb(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
                 z-index: 10001;
-                padding: 10px;
+                padding: 40px 20px 20px 20px;
             }
             .sgart-popup .sgart-popup-wrapper {
                 display: flex;
@@ -271,6 +574,18 @@
                 word-wrap: break-word;
                 margin: 10px 0;
             }
+            .sgart-popup .sgart-popup-history li {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                margin: 5px 0;
+                gap: 10px;
+                justify-content: space-between;
+
+            }
+            .sgart-popup .sgart-popup-history button {
+                flex: auto;
+            }
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
         if (stylePrev) {
@@ -300,25 +615,25 @@
         }
 
         if (response.value && Array.isArray(response.value)) {
-            console.debug(LOG_SOURCE, 'response.value is an array', response);
+            // console.debug(LOG_SOURCE, 'response.value is an array', response);
             return response.value
         }
 
         if (response.d) {
             if (response.d.results && Array.isArray(response.d.results)) {
-                console.debug(LOG_SOURCE, 'response.d.results is an array', response);
+                // console.debug(LOG_SOURCE, 'response.d.results is an array', response);
                 return response.d.results;
             } else {
-                console.debug(LOG_SOURCE, 'response.d is a single object', response);
+                // console.debug(LOG_SOURCE, 'response.d is a single object', response);
                 return response.d;
             }
         }
 
         if (Array.isArray(response)) {
-            console.debug(LOG_SOURCE, 'response is an array', response);
+            // console.debug(LOG_SOURCE, 'response is an array', response);
             return response;
         }
-        console.debug(LOG_SOURCE, 'response is object', response);
+        // console.debug(LOG_SOURCE, 'response is object', response);
         return response;
     };
 
@@ -398,9 +713,9 @@
 
         const buildTable = (items) => {
             const data = simplifyObjectOrArray(items);
-            console.debug(LOG_SOURCE, 'buildTable: items is object', data);
+            // console.debug(LOG_SOURCE, 'buildTable: items is object', data);
             if (!items) {
-                console.debug(LOG_SOURCE, 'buildTable: items is undefined or null');
+                // console.debug(LOG_SOURCE, 'buildTable: items is undefined or null');
                 return { columns: [], items: [] };
             }
             if (Array.isArray(data)) {
@@ -442,327 +757,6 @@
         return q;
     }
 
-    function loadAPiUrlOptions() {
-        const configs = {
-            groups: [
-                {
-                    id: "site",
-                    title: "Site",
-                    actions: [
-                        {
-                            id: "getSite",
-                            title: "Get site",
-                            url: "site"
-                        },
-                        {
-                            id: "getSiteId",
-                            title: "Get site id",
-                            url: "site/id"
-                        }
-                    ]
-                },
-                {
-                    id: "web",
-                    title: "Web",
-                    actions: [
-                        {
-                            id: "getWeb",
-                            title: "Get web",
-                            url: "web"
-                        },
-                        {
-                            id: "getWebById",
-                            title: "Get sub webs",
-                            url: "web/webs"
-                        },
-                        {
-                            id: "getWebSiteUsers",
-                            title: "Get site users",
-                            url: "web/siteusers"
-                        },
-                        {
-                            id: "getWebSiteGrous",
-                            title: "Get site groups",
-                            url: "web/sitegroups"
-                        },
-                        {
-                            id: "getWebRoleDefinitions",
-                            title: "Get site role definitions",
-                            url: "web/roledefinitions"
-                        }
-                    ]
-                },
-                {
-                    id: "user",
-                    title: "User",
-                    actions: [
-                        {
-                            id: "getCurrentUser",
-                            title: "Get current user",
-                            url: "web/CurrentUser"
-                        },
-                        {
-                            id: "getUsers",
-                            title: "Get users",
-                            url: "web/SiteUsers"
-                        },
-                        {
-                            id: "getUserById",
-                            title: "Get user by id",
-                            url: "web/GetUserById(1)"
-                        },
-                        {
-                            id: "getGroups",
-                            title: "Get groups",
-                            url: "web/sitegroups"
-                        },
-                        {
-                            id: "getGroupsMembers",
-                            title: "Get group members",
-                            url: "web/sitegroups(1)/users"
-                        },
-                    ]
-                },
-                {
-                    id: "list",
-                    title: "List",
-                    actions: [
-                        {
-                            id: "getLists",
-                            title: "Get lists",
-                            url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderBy=Title"
-                        },
-                        {
-                            id: "getListByGuid",
-                            title: "Get list by guid",
-                            url: "web/lists(guid'00000000-0000-0000-0000-000000000000')"
-                        },
-                        {
-                            id: "getListByTitle",
-                            title: "Get list by title",
-                            url: "web/lists/getbytitle('Documents')"
-                        },
-                        {
-                            id: "getListByTitleRootFolder",
-                            title: "Get list by title RootFolder",
-                            url: "web/lists/getbytitle('Documents')/RootFolder"
-                        },
-                        {
-                            id: "getFields",
-                            title: "Get fields",
-                            url: "web/lists/getbytitle('Documents')/fields"
-                        },
-                        {
-                            id: "getViews",
-                            title: "Get views",
-                            url: "web/lists/getbytitle('Documents')/views?$top=100&$orderBy=Title"
-                        },
-                        {
-                            id: "getViewsHidden",
-                            title: "Get views hidden",
-                            url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderBy=Title&$filter=Hidden eq true"
-                        },
-                        {
-                            id: "getContenttypes",
-                            title: "Get content types",
-                            url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderBy=Name"
-                        },
-                    ]
-                },
-                {
-                    id: "item",
-                    title: "Item",
-                    actions: [
-                        {
-                            id: "getItems",
-                            title: "Get items",
-                            url: "web/lists/getbytitle('Documents')/items?$top=10&$orderBy=Id desc"
-                        },
-                        {
-                            id: "getItemById",
-                            title: "Get item by id",
-                            url: "web/lists/getbytitle('Documents')/items(1)"
-                        },
-                        {
-                            id: "getItemByIdWithSelect",
-                            title: "Get item by id with select and expand",
-                            url: "web/lists/getbytitle('Documents')/items(1)?$select=Title,Id,Created,Modified,Author/Title,Editor/Title&$expand=Author,Editor"
-                        },
-                        {
-                            id: "getItemAttachments",
-                            title: "Get item attachments",
-                            url: "web/lists/getbytitle('Documents')/items(1)/AttachmentFiles",
-                        }
-                    ]
-                },
-                {
-                    id: "file",
-                    title: "File",
-                    actions: [
-                        {
-                            id: "getFileById",
-                            title: "Get file by id",
-                            url: "web/getfilebyid('00000000-0000-0000-0000-000000000000')"
-                        },
-                        {
-                            id: "getFileByServerRelativeUrl",
-                            title: "Get file by server relative url",
-                            url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')"
-                        },
-                        {
-                            id: "getFileContent",
-                            title: "Get file content",
-                            url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')/$value"
-                        }
-                    ]
-                },
-                {
-                    id: "folder",
-                    title: "Folder",
-                    actions: [
-                        {
-                            id: "getFolderByServerRelativeUrl",
-                            title: "Get folder by server relative url",
-                            url: "web/getfolderbyserverrelativeurl('Shared Documents')"
-                        },
-                        {
-                            id: "getFolderById",
-                            title: "Get folder by id",
-                            url: "web/getfolderbyid('00000000-0000-0000-0000-000000000000')"
-                        },
-                        {
-                            id: "getFolderFiles",
-                            title: "Get folder files",
-                            url: "web/getfolderbyserverrelativeurl('Shared Documents')/files"
-                        },
-                        {
-                            id: "getFolderFileContent",
-                            title: "Get folder files",
-                            url: "web/getfolderbyserverrelativeurl('/sites/someSite/Shared Documents/file name')/$value"
-                        }
-                    ]
-                },
-                {
-                    id: "search",
-                    title: "Search",
-                    actions: [
-                        {
-                            id: "searchSites",
-                            title: "Search sites",
-                            url: "search/query",
-                            query: {
-                                mode: "search",
-                                filter: "sharepoint (contentclass:STS_Site) Path:\"https://sgart.sharepoint.com/*\"",
-                                select: "Title,Path,Description,SiteLogo,WebTemplate,WebId,SiteId,Created,LastModifiedTime"
-                            }
-                        }
-                    ]
-                },
-                {
-                    id: "userProfile",
-                    title: "User Profile",
-                    actions: [
-                        {
-                            id: "getPMInstance",
-                            title: "PeopleManager instance",
-                            url: "SP.UserProfiles.PeopleManager"
-                        },
-                        {
-                            id: "getPMFollowedByMe",
-                            title: "Followed by ME",
-                            url: "SP.UserProfiles.PeopleManager/getpeoplefollowedbyme",
-                            query: {
-                                select: "*"
-                            }
-                        },
-                        {
-                            id: "getPMFollowedBy",
-                            title: "Followed by ...",
-                            url: "SP.UserProfiles.PeopleManager/getpeoplefollowedby(@v)?@v='i%3A0%23.f%7Cmembership%7Cuser%40domain.onme",
-                            query: {
-                                select: "*"
-                            }
-                        }
-
-
-                    ]
-                },
-                {
-                    id: "taxonomy",
-                    title: "Taxonomy",
-                    actions: [
-                        {
-                            id: "getTermStoreGroups",
-                            title: "Get groups",
-                            url: "v2.1/termStore/groups"
-                        },
-                        {
-                            id: "getTermStoreTermGroups",
-                            title: "Get term groups",
-                            url: "v2.1/termStore/termGroups"
-                        },
-                        {
-                            id: "getTermStoreSets",
-                            title: "Get term sets",
-                            url: "v2.1/termStore/groups/{groupid}/sets"
-                        },
-                        {
-                            id: "getTermStoreSetById",
-                            title: "Get terms by set id",
-                            url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms"
-                        },
-                        {
-                            id: "getTermById",
-                            title: "Get terms by set id next level",
-                            url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms/{termId}/terms"
-                        }
-                    ]
-                },
-                {
-                    id: "webhooks",
-                    title: "Webhooks",
-                    actions: [
-                        {
-                            id: "getWebhooks",
-                            title: "Get webhooks",
-                            url: "web/lists/getbytitle('Documents')/subscriptions"
-                        }
-                    ]
-                },
-                {
-                    id: "tenant",
-                    title: "Tenant",
-                    actions: [
-                        {
-                            id: "getTenantAppCatalog",
-                            title: "Get tenant app catalog",
-                            url: "SP_TenantSettings_Current"
-                        }
-                    ]
-                }
-            ]
-        };
-
-        var s = "";
-        configs.groups.forEach(group => {
-            s +="<div class='sgart-popup-group'><h3>" + group.title.htmlEncode() + "</h3><div>";
-            group.actions.forEach(action => {
-                const relativeUrl = '_api/' + action.url + getQueryParam(action.query);
-                const url = (serverRelativeUrlPrefix + relativeUrl).htmlEncode();
-                const title = action.title.htmlEncode();
-                s += "<button class='sgart-popup-action'"
-                    + " data-url=\"" + url + "\""
-                    + " data-group=\"" + group.id + "\""
-                    + " data-action=\"" + action.id + "\""
-                    + " title=\"" + url + "\""
-                    + "><h4>" + title + "</h4><p>" + relativeUrl + "</p>"
-                    + "</button>";
-            });
-            s+="</div></div>";
-        });
-        document.getElementById(HTML_ID_PUPUP_CONTENT).innerHTML = s;
-    }
-
     function showInterface() {
         const interfaceDivPrev = document.getElementById(HTML_ID_WRAPPER);
         if (interfaceDivPrev) {
@@ -799,6 +793,9 @@
 						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
                         <span class="sgart-separator">|</span>
                         <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples">Examples</button>
+                        <span class="sgart-separator">|</span>
+                        <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories">History</button>
+
 					</div>
 					<div class="sgart-toolbar-right">v. ${VERSION}</div>
                 </div>
@@ -811,21 +808,9 @@
                     </div>
                 </div>
             </div>
-            <div id="${HTML_ID_PUPUP}" class="sgart-popup">
-                <div class="sgart-popup-wrapper">
-                    <div class="sgart-pupup-header">
-                        <h2>Examples and usage</h2>
-                        <button id="${HTML_ID_BTN_POPUP_CLOSE}" class="sgart-button" data-action="popup-close" title="Response formatted as table (beta)">Close</button>
-                    </div>
-                    <div id="${HTML_ID_PUPUP_CONTENT}" class="sgart-popup-body">
-                        Visit the <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank">dedicated post</a> to see examples and usage instructions.
-                    </div>
-                </div>
-            </div>            
+            <div id="${HTML_ID_PUPUP}" class="sgart-popup"></div>            
         `;
         document.body.appendChild(interfaceDiv);
-
-        loadAPiUrlOptions();
     }
 
     const fetchGetJson = async (url, odataVerbose, outputNormal) => {
@@ -850,30 +835,96 @@
         */
     };
 
-    function popupShow() {
+
+    /* POPUP */
+
+    function popupShow(title, contentHtml) {
         const popup = document.getElementById(HTML_ID_PUPUP);
-        popup.style.display = 'flex';   
+
+        const html = `
+            <div class="sgart-popup-wrapper">
+                <div class="sgart-pupup-header">
+                    <h2>${title.htmlEncode()}</h2>
+                    <button class="sgart-button sgart-popup-event" data-event="popup-close" title="close popup">Close</button>
+                </div>
+                <div class="sgart-popup-body">${contentHtml}</div>
+            </div>`;
+        popup.innerHTML = html;
+        popup.style.display = 'flex';
+        popup.addEventListener("click", handlePopupClickEvent);
     }
 
     function popupHide() {
         const popup = document.getElementById(HTML_ID_PUPUP);
-        popup.style.display = 'none';   
+        popup.style.display = 'none';
+        popup.innerHTML = '';
+        popup.removeEventListener("click", handlePopupClickEvent);
     }
 
-    function handlePopupSingleExampleClickEvent(event) {
+    function handlePopupClickEvent(event) {
         const target = event.target;
-        const actionElem = target.closest('.sgart-popup-action');   
+        const actionElem = target.closest('.sgart-popup-event');
         if (actionElem) {
-            const url = actionElem.getAttribute('data-url');    
-            document.getElementById(HTML_ID_TXT_INPUT).value = url;
-            popupHide();
-            handleExecuteClickEvent();
+            const poupEvent = actionElem.getAttribute('data-event')
+            if (poupEvent === 'popup-close') {
+                popupHide();
+            } else if (poupEvent === 'set-url') {
+                const url = actionElem.getAttribute('data-url');
+                document.getElementById(HTML_ID_TXT_INPUT).value = url;
+                popupHide();
+                handleExecuteClickEvent();
+            } else {
+                console.error(LOG_SOURCE, "Unknown popup event:", poupEvent);
+            }
         }
     }
 
+    function popupShowExamples() {
+        var s = "";
+        EXAMPLES.groups.forEach(group => {
+            s += "<div class='sgart-popup-group'><h3>" + group.title.htmlEncode() + "</h3><div>";
+            group.actions.forEach(action => {
+                const relativeUrl = '_api/' + action.url + getQueryParam(action.query);
+                const url = (serverRelativeUrlPrefix + relativeUrl).htmlEncode();
+                const title = action.title.htmlEncode();
+                s += "<button class='sgart-popup-action sgart-popup-event'"
+                    + " data-event=\"set-url\""
+                    + " data-url=\"" + url + "\""
+                    + " data-group=\"" + group.id + "\""
+                    + " data-action=\"" + action.id + "\""
+                    + " title=\"" + url + "\""
+                    + "><h4>" + title + "</h4><p>" + relativeUrl + "</p>"
+                    + "</button>";
+            });
+            s += "</div></div>";
+        });
+
+        popupShow("Examples and usage", s);
+    }
+
+    function popupShowHistory() {
+        var s = "";
+        if (historyList.length === 0) {
+            s = "<p>No history available.</p>";
+        } else {
+            s += "<div class='sgart-popup-history'><ol>";
+            historyList.forEach((historyItem, index) => {
+                const url = historyItem.url.htmlEncode();
+                const date = `${new Date(historyItem.timestamp).toLocaleString()}`.htmlEncode();
+                s += "<li><span>"+ (index+1) + "</span><span>" + date + "</span><button class='sgart-popup-action sgart-popup-event'"
+                    + " data-event=\"set-url\""
+                    + " data-url=\"" + url + "\""
+                    + "><strong>" + url + "</strong>"
+                    + "</button></li>";
+            });
+            s += "</ol></div>";
+        }
+        popupShow("History", s);
+    }
+
+    /* END POPUP */
 
     function handleExecuteKeydownEvent(event) {
-        console.log(event);
         if (event.keyCode === 13) {
             handleExecuteClickEvent();
         }
@@ -898,6 +949,22 @@
 
             const tableHtml = buildHtmlTableFromJson(data);
             outputTable.innerHTML = tableHtml;
+
+            // add to history
+            if (historyList.length > 0 && historyList[0].url === input) {
+                // do nothing, same as last
+            } else {
+                if (historyList.length >= MAX_HISTORY_ITEMS) {
+                    historyList.pop();
+                }
+                const historyItem = {
+                    url: input,
+                    odataVerbose: modeVerbose,
+                    timestamp: new Date().toISOString(),
+                    //response: data
+                };
+                historyList.unshift(historyItem);
+            }
         }).catch(error => {
             console.error(LOG_SOURCE, "Error executing API request:", error);
             const msg = "Error: " + error.message;
@@ -937,16 +1004,16 @@
 
 
     function addEvents() {
-        document.getElementById(HTML_ID_BTN_EXECUTE).addEventListener("click", handleExecuteClickEvent);
+        const btnExecute = document.getElementById(HTML_ID_BTN_EXECUTE);
+        btnExecute.addEventListener("click", handleExecuteClickEvent);
 
-        document.getElementById(HTML_ID_TXT_INPUT).addEventListener("keydown", handleExecuteKeydownEvent);
+        const txtInput = document.getElementById(HTML_ID_TXT_INPUT);
+        txtInput.addEventListener("keydown", handleExecuteKeydownEvent);
 
         document.getElementById(HTML_ID_BTN_CLOSE).addEventListener("click", handleCloseClickEvent);
 
-        document.getElementById(HTML_ID_BTN_EXAMPLES).addEventListener("click", popupShow);
-        document.getElementById(HTML_ID_BTN_POPUP_CLOSE).addEventListener("click", popupHide);
-        document.getElementById(HTML_ID_PUPUP).addEventListener("click", handlePopupSingleExampleClickEvent);
-        document.querySelector('.sgart-content-wrapper [data-action=getWeb]').click();
+        document.getElementById(HTML_ID_BTN_EXAMPLES).addEventListener("click", popupShowExamples);
+        document.getElementById(HTML_ID_BTN_HISTORY).addEventListener("click", popupShowHistory);
 
         document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).onclick = function () {
             document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
@@ -968,6 +1035,12 @@
             btn.onclick = handleSwitchTabEvent;
         });
         tabs[0].click();
+
+        // set default
+        const elmTxt = document.getElementById(HTML_ID_TXT_INPUT);
+        txtInput.value = serverRelativeUrlPrefix + "_api/web";
+        txtInput.focus();
+        handleExecuteClickEvent();
     }
 
     function init() {
@@ -989,8 +1062,6 @@
         injectStyle();
         showInterface();
         addEvents();
-
-        //console.log(fetchGetJson.toString());
     }
 
     init();
