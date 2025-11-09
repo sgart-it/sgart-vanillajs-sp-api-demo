@@ -342,259 +342,6 @@
         return document.createElement("a").appendChild(node).parentNode.innerHTML.replace(/'/g, "&#39;").replace(/"/g, "&#34;");
     };
 
-    function injectStyle() {
-        const css = `
-            :root{
-                --sgart-primary-color: rgb(167, 68, 17);
-                --sgart-primary-color-light: rgb(167, 68, 17, .5);
-                --sgart-primary-color-hover: rgb(149, 60, 15);
-                --sgart-primary-color-dark: #7a320d;
-                --sgart-secondary-color: #080808;
-                --sgart-secondary-color-dark: #060606;
-                --sgart-secondary-color-white: #ffffff;
-                --sgart-secondary-color-gray-light: #cccccc;
-            }
-            .sgart-content-wrapper {
-                font-family: Arial, sans-serif;
-                border: 0;
-                display: flex;
-                flex-direction: column;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: var(--sgart-secondary-color-white);
-                margin: 0;
-                padding: 0;
-                z-index: 10000;
-                box-sizing: border-box;
-            }   
-                .sgart-content-wrapper input, .sgart-content-wrapper textarea, .sgart-content-wrapper select, .sgart-content-wrapper .sgart-button {
-                    font-family: Arial, sans-serif;
-                    font-size: 14px;
-                    height: 32px;
-                    padding: 0 10px;
-                    border: 1px solid var(--sgart-primary-color);
-                    background-color: var(--sgart-secondary-color-white);
-                    box-sizing: border-box;
-                }
-                .sgart-content-wrapper select {
-                    width: 150px;
-                }
-                .sgart-content-wrapper #sgart-api-demo {
-                    width: 200px;
-                }
-                .sgart-content-wrapper .sgart-button  {
-                    background-color: var(--sgart-primary-color);
-                    color: white;
-                    padding: 0px 20px;
-                    cursor: pointer;
-                    width: 110px;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-                .sgart-content-wrapper .sgart-button.sgart-button-tab {
-                    background-color: var(--sgart-primary-color-light);
-                    color: var(--sgart-secondary-color);
-                }
-                .sgart-content-wrapper .sgart-button.selected, .sgart-content-wrapper .sgart-button:hover, .sgart-content-wrapper .sgart-button.sgart-button-tab.selected, .sgart-content-wrapper .sgart-button.sgart-button-tab:hover {
-                    background-color: var(--sgart-primary-color-hover);
-                    color: var(--sgart-secondary-color-white);
-                    font-weight: bold;
-                }
-                .sgart-button.sgart-button-tab:hover 
-                {
-                    border-color: var(--sgart-secondary-color);
-                }
-                .sgart-content-wrapper .sgart-separator{
-                    margin: 0px 10px;
-                }
-
-            .sgart-header {
-                background-color: var(--sgart-secondary-color);  
-                color: white;
-                padding: 10px;
-                border-bottom: 1px solid var(--sgart-secondary-color-gray-light:);
-                height: 40px;
-                display: flex;
-                flwex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }       
-                .sgart-header .sgart-button  {
-                    background-color: var(--sgart-secondary-color);
-                    color: var(--sgart-secondary-color-white);
-                    padding: 0px 20px;
-                }
-                .sgart-header .logo {
-                    height: 33px;
-                    margin-right: 10px;
-                }
-			.sgart-toolbar{
-				display:flex;
-				flex-direction: row;
-				align-items: center;
-				justify-content: space-between;
-			}
-			.sgart-toolbar-left {
-                display: flex;
-                gap: 10px;
-                justify-content: left;
-                align-items: center;
-                flex-wrap: wrap;
-			}
-			.sgart-toolbar-right{
-				justify-content: right;
-			}
-            .sgart-body {
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-                padding: 10px;
-                gap: 10px;
-            }   
-            .sgart-input-area {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                jsutify-content: space-between;
-            }
-            .sgart-input {
-                flex-grow: 1;   
-            }
-            .sgart-output-area {
-                flex-grow: 1;   
-                display: flex;
-                overflow: hidden;
-                position: relative;
-            }
-            .sgart-output-area > div {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;    
-                overflow: auto;
-                flex-grow: 1;   
-                display: flex;
-                box-sizing: border-box;
-                border: 1px solid var(--sgart-primary-color);
-                background-color: var(--sgart-secondary-color-white);
-            }
-            .sgart-content-wrapper .sgart-output-txt, .sgart-content-wrapper .sgart-output-table {
-                width: 100%;    
-                height: 100%;
-                flex-grow: 1;
-                gap: 10px;
-                font-family: monospace;
-                resize: none;
-                box-sizing: border-box;
-                border: none;
-            }
-            .sgart-content-wrapper table th {
-                background-color: var(--sgart-primary-color);
-                color: var(--sgart-secondary-color-white);
-                text-align: left;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-                padding: 5px;
-            }
-            .sgart-popup {
-                position: fixed;
-                display: none;   /*flex;*/
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                backdrop-filter: blur(5px);
-                z-index: 10001;
-                padding: 40px 20px 20px 20px;
-            }
-            .sgart-popup .sgart-popup-wrapper {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                background-color: var(--sgart-secondary-color-white);
-                border: 2px solid var(--sgart-primary-color);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                z-index: 10002;
-            }
-            .sgart-popup .sgart-pupup-header {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px;
-                height: 40px;
-                border-bottom: 1px solid var(--sgart-primary-color);
-                background-color: var(--sgart-primary-color);
-                color: var(--sgart-secondary-color-white);
-            }
-            .sgart-popup .sgart-popup-body {
-                display: flex;
-                flex-direction: column;
-                padding: 10px;
-                hight: 100%;
-                overflow-x: hideden;
-                overflow-y: auto;
-            }
-            .sgart-popup .sgart-popup-group {
-                display: flex;
-                flex-direction: column;
-                padding: 10px;
-                hight: 100%;
-            }
-            .sgart-popup .sgart-popup-group > div {
-                display: flex;
-                flex-direction: row;
-                jsutify-content: space-between;
-                padding: 10px;
-                hight: 100%;
-                flex-wrap: wrap;
-            }
-            .sgart-popup .sgart-popup-action {  
-                border: 1px solid var(--sgart-primary-color);
-                padding: 10px;
-                margin: 5px;
-                cursor: pointer;
-                width: 45%;
-                overflow: hidden;
-                text-align: left;
-                background-color: var(--sgart-secondary-color-white);
-            }
-            .sgart-popup .sgart-popup-action h4 {
-                margin: 10px 0;
-                font-size: 16px;
-            }
-            .sgart-popup .sgart-popup-action p {
-                word-wrap: break-word;
-                margin: 10px 0;
-            }
-            .sgart-popup .sgart-popup-history li {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                margin: 5px 0;
-                gap: 10px;
-                justify-content: space-between;
-            }
-            .sgart-popup .sgart-popup-history button {
-                flex: auto;
-            }
-        `;
-        const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
-        if (stylePrev) {
-            document.head.removeChild(stylePrev);
-        }
-        const style = document.createElement('style');
-        style.className = 'sgart-inject-style';
-        //style.type = 'text/css';
-        style.appendChild(document.createTextNode(css));
-        document.head.appendChild(style);
-    }
-
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => {
@@ -758,6 +505,272 @@
         return q;
     }
 
+    function injectStyle() {
+        const css = `
+            :root{
+                --sgart-primary-color: rgb(167, 68, 17);
+                --sgart-primary-color-light: rgb(167, 68, 17, .5);
+                --sgart-primary-color-hover: rgb(149, 60, 15);
+                --sgart-primary-color-dark: #7a320d;
+                --sgart-secondary-color: #080808;
+                --sgart-secondary-color-dark: #060606;
+                --sgart-secondary-color-white: #ffffff;
+                --sgart-secondary-color-gray-light: #cccccc;
+            }
+            .sgart-content-wrapper {
+                font-family: Arial, sans-serif;
+                border: 0;
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: var(--sgart-secondary-color-white);
+                margin: 0;
+                padding: 0;
+                z-index: 10000;
+                box-sizing: border-box;
+            }   
+            .sgart-content-wrapper input, .sgart-content-wrapper textarea, .sgart-content-wrapper select, .sgart-content-wrapper .sgart-button {
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                height: 32px;
+                padding: 0 10px;
+                border: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-secondary-color-white);
+                box-sizing: border-box;
+            }
+            .sgart-content-wrapper select {
+                width: 150px;
+            }
+            .sgart-content-wrapper #sgart-api-demo {
+                width: 200px;
+            }
+            .sgart-content-wrapper .sgart-button  {
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
+                padding: 0 10px;
+                cursor: pointer;
+                width: 120px;
+                overflow: hidden;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+            }
+            .sgart-content-wrapper .sgart-button  svg {
+                color: var(--sgart-secondary-color-white);
+                fill: var(--sgart-secondary-color-white);
+                height: 20px;
+                width: 20px;
+            }
+            .sgart-content-wrapper .sgart-button.sgart-button-tab {
+                background-color: var(--sgart-primary-color-light);
+                color: var(--sgart-secondary-color);
+            }
+            .sgart-content-wrapper .sgart-button.selected, .sgart-content-wrapper .sgart-button:hover, .sgart-content-wrapper .sgart-button.sgart-button-tab.selected, .sgart-content-wrapper .sgart-button.sgart-button-tab:hover {
+                background-color: var(--sgart-primary-color-hover);
+                color: var(--sgart-secondary-color-white);
+                font-weight: bold;
+            }
+            .sgart-button.sgart-button-tab:hover 
+            {
+                border-color: var(--sgart-secondary-color);
+            }
+            .sgart-content-wrapper .sgart-separator{
+                margin: 0px 10px;
+            }
+            .sgart-header {
+                background-color: var(--sgart-secondary-color);  
+                color: white;
+                padding: 10px;
+                border-bottom: 1px solid var(--sgart-secondary-color-gray-light:);
+                height: 40px;
+                display: flex;
+                flwex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }       
+            .sgart-header .sgart-button  {
+                background-color: var(--sgart-secondary-color);
+                color: var(--sgart-secondary-color-white);
+                padding: 0px 20px;
+            }
+            .sgart-header .logo {
+                height: 33px;
+                margin-right: 10px;
+            }
+			.sgart-toolbar{
+				display:flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+			}
+			.sgart-toolbar-left {
+                display: flex;
+                gap: 10px;
+                justify-content: left;
+                align-items: center;
+                flex-wrap: wrap;
+			}
+			.sgart-toolbar-right{
+				justify-content: right;
+			}
+            .sgart-body {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                padding: 10px;
+                gap: 10px;
+            }   
+            .sgart-input-area {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                jsutify-content: space-between;
+            }
+            .sgart-input {
+                flex-grow: 1;   
+            }
+            .sgart-output-area {
+                flex-grow: 1;   
+                display: flex;
+                overflow: hidden;
+                position: relative;
+            }
+            .sgart-output-area > div {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;    
+                overflow: auto;
+                flex-grow: 1;   
+                display: flex;
+                box-sizing: border-box;
+                border: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-secondary-color-white);
+            }
+            .sgart-output-area table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            .sgart-content-wrapper .sgart-output-txt, .sgart-content-wrapper .sgart-output-table {
+                width: 100%;    
+                height: 100%;
+                flex-grow: 1;
+                gap: 10px;
+                font-family: monospace;
+                resize: none;
+                box-sizing: border-box;
+                border: none;
+            }
+            .sgart-content-wrapper table th {
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
+                text-align: left;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                padding: 5px;
+            }
+            .sgart-popup {
+                position: fixed;
+                display: none;   /*flex;*/
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                backdrop-filter: blur(5px);
+                z-index: 10001;
+                padding: 40px 20px 20px 20px;
+            }
+            .sgart-popup .sgart-popup-wrapper {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background-color: var(--sgart-secondary-color-white);
+                border: 2px solid var(--sgart-primary-color);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 10002;
+            }
+            .sgart-popup .sgart-pupup-header {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                height: 40px;
+                border-bottom: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
+            }
+            .sgart-popup .sgart-popup-body {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                hight: 100%;
+                overflow-x: hideden;
+                overflow-y: auto;
+            }
+            .sgart-popup .sgart-popup-group {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                hight: 100%;
+            }
+            .sgart-popup .sgart-popup-group > div {
+                display: flex;
+                flex-direction: row;
+                jsutify-content: space-between;
+                padding: 10px;
+                hight: 100%;
+                flex-wrap: wrap;
+            }
+            .sgart-popup .sgart-popup-action {  
+                border: 1px solid var(--sgart-primary-color);
+                padding: 10px;
+                margin: 5px;
+                cursor: pointer;
+                width: 45%;
+                overflow: hidden;
+                text-align: left;
+                background-color: var(--sgart-secondary-color-white);
+            }
+            .sgart-popup .sgart-popup-action h4 {
+                margin: 10px 0;
+                font-size: 16px;
+            }
+            .sgart-popup .sgart-popup-action p {
+                word-wrap: break-word;
+                margin: 10px 0;
+            }
+            .sgart-popup .sgart-popup-history li {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                margin: 5px 0;
+                gap: 10px;
+                justify-content: space-between;
+            }
+            .sgart-popup .sgart-popup-history button {
+                flex: auto;
+            }
+        `;
+        const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
+        if (stylePrev) {
+            document.head.removeChild(stylePrev);
+        }
+        const style = document.createElement('style');
+        style.className = 'sgart-inject-style';
+        //style.type = 'text/css';
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+    }
+
     function showInterface() {
         const interfaceDivPrev = document.getElementById(HTML_ID_WRAPPER);
         if (interfaceDivPrev) {
@@ -783,18 +796,18 @@
                 </div>
                 <div class="sgart-toolbar">
 					<div class="sgart-toolbar-left">
-						<button id="${HTML_ID_BTN_EXECUTE}" class="sgart-button" title="Execute api call">Execute</button>
+						<button id="${HTML_ID_BTN_EXECUTE}" class="sgart-button" title="Execute api call"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 1024L512 1920V128l1280 896zM640 1674l929-650-929-650v1300z"></path></svg><span>Execute</span></button>
 						<span class="sgart-separator">|</span>
-						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button" title="Clear all outputs">Clear</button>
-						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button" title="Copy current response">Copy</button>
+						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button" title="Clear all outputs"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1115 1024l914 915-90 90-915-914-915 914-90-90 914-915L19 109l90-90 915 914 915-914 90 90-914 915z"></path></svg><span>Clear</span></button>
+						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button" title="Copy current response"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1920 805v1243H640v-384H128V0h859l384 384h128l421 421zm-384-37h165l-165-165v165zM640 384h549L933 128H256v1408h384V384zm1152 512h-384V512H768v1408h1024V896z"></path></svg><span>Copy</span></button>
 						<span class="sgart-separator">|</span>
                         <span>Response:</span>
 						<button id="${HTML_ID_TAB_RAW}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_RAW}" data-tab-control-id="${HTML_ID_OUTPUT_RAW}" title="API Response">RAW</button>
 						<button id="${HTML_ID_TAB_SIMPLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_SIMPLE}" data-tab-control-id="${HTML_ID_OUTPUT_SIMPLE}" title="Response with 'value' or 'd' property removed">Simple</button>
 						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
                         <span class="sgart-separator">|</span>
-                        <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples">Examples</button>
-                        <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories">History</button>
+                        <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 0v1792H256V0h1536zm-128 128H384v1536h1280V128zM640 896H512V768h128v128zm896 0H768V768h768v128zm-896 384H512v-128h128v128zm896 0H768v-128h768v128zM640 512H512V384h128v128zm896 0H768V384h768v128z"></path></svg><span>Examples</span></button>
+                        <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1024 512v549l365 366-90 90-403-402V512h128zm944 113q80 192 80 399t-80 399q-78 183-220 325t-325 220q-192 80-399 80-174 0-336-57-158-55-289-156-130-101-223-238-47-69-81-144t-57-156l123-34q40 145 123 266t198 208 253 135 289 48q123 0 237-32t214-90 182-141 140-181 91-214 32-238q0-123-32-237t-90-214-141-182-181-140-214-91-238-32q-130 0-252 36T545 268 355 429 215 640h297v128H0V256h128v274q17-32 37-62t42-60q94-125 220-216Q559 98 710 49t314-49q207 0 399 80 183 78 325 220t220 325z"></path></svg><span>History</span></button>
                         <span class="sgart-separator">|</span>
                         <span>Count: <span id="${HTML_ID_LBL_COUNT}"></span></span>
 
