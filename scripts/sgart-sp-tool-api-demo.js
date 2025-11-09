@@ -3,7 +3,7 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-08";
+    const VERSION = "1.2025-11-09";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -11,11 +11,12 @@
 
     const HTML_ID_PUPUP = "sgart-popup";
 
-    const HTML_ID_BTN_CLOSE = "sgart-btn-close";
+    const HTML_ID_BTN_EXIT = "sgart-btn-exit";
     const HTML_ID_BTN_CLEAR_OUTPUT = "sgart-btn-clear-output";
     const HTML_ID_BTN_COPY_OUTPUT = "sgart-btn-copy-output";
     const HTML_ID_BTN_EXAMPLES = "sgart-btn-examples";
     const HTML_ID_BTN_HISTORY = "sgart-btn-history";
+    const HTML_ID_LBL_COUNT = "sgart-label-count";
 
     const HTML_ID_OUTPUT_RAW = "sgart-output-raw";
     const HTML_ID_OUTPUT_SIMPLE = "sgart-output-simple";
@@ -334,9 +335,6 @@
         ]
     };
 
-    const MAX_HISTORY_ITEMS = 100;
-    const historyList = [];
-
 
     // encode dei caratteri in html
     String.prototype.htmlEncode = function () {
@@ -581,7 +579,6 @@
                 margin: 5px 0;
                 gap: 10px;
                 justify-content: space-between;
-
             }
             .sgart-popup .sgart-popup-history button {
                 flex: auto;
@@ -601,7 +598,7 @@
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => {
-                //console.log('Text copied to clipboard:', text);
+                console.log('Text copied to clipboard:', text);
             })
             .catch(err => {
                 console.error('Failed to copy text: ', err);
@@ -638,8 +635,7 @@
     };
 
 
-    function buildHtmlTableFromJson(json) {
-
+    const htmlTableFromJson = (function () {
         const buildTableItem = (item) => {
             const table = {
                 columns: [
@@ -741,11 +737,16 @@
             return html;
         };
 
-        const tableItems = buildTable(json);
-        const html = renderTable(tableItems);
+        const buid = (json) => {
+            const tableItems = buildTable(json);
+            const html = renderTable(tableItems);
+            return html;
+        };
 
-        return html;
-    }
+        return {
+            buid
+        };
+    })();
 
     function getQueryParam(query) {
         if (!query) return "";
@@ -769,7 +770,7 @@
             <div class="sgart-header">
                 <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
                 <h3>Tool SharePoint API Demo (Vanilla JS)</h3>
-                <button id="${HTML_ID_BTN_CLOSE}" class="sgart-button">Close</button>
+                <button id="${HTML_ID_BTN_EXIT}" class="sgart-button">Exit</button>
             </div>
             <div class="sgart-body">
                 <div class="sgart-input-area">
@@ -793,8 +794,9 @@
 						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
                         <span class="sgart-separator">|</span>
                         <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples">Examples</button>
-                        <span class="sgart-separator">|</span>
                         <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories">History</button>
+                        <span class="sgart-separator">|</span>
+                        <span>Count: <span id="${HTML_ID_LBL_COUNT}"></span></span>
 
 					</div>
 					<div class="sgart-toolbar-right">v. ${VERSION}</div>
@@ -835,43 +837,127 @@
         */
     };
 
+    /* History */
+
+    const history = (function () {
+        const LOCAL_STORAGE_KEY_HISTORY = "sgart_it_sp_api_demo_history_v1";
+        const MAX_HISTORY_ITEMS = 99;
+        const historyList = [];
+
+        const loadFromStorage = () => {
+            try {
+                const historyJson = localStorage.getItem(LOCAL_STORAGE_KEY_HISTORY);
+                if (historyJson) {
+                    const historyArray = JSON.parse(historyJson);
+                    if (Array.isArray(historyArray)) {
+                        historyList.length = 0;
+                        historyArray.forEach(item => historyList.push(item));
+                    }
+                }
+            } catch (error) {
+                console.error(LOG_SOURCE, "Error loading history from local storage:", error);
+            }
+        };
+
+        const saveToStorage = () => {
+            try {
+                const historyJson = JSON.stringify(historyList);
+                localStorage.setItem(LOCAL_STORAGE_KEY_HISTORY, historyJson);
+            } catch (error) {
+                console.error(LOG_SOURCE, "Error saving history to local storage:", error);
+            }
+        };
+
+        const clear = () => {
+            historyList.length = 0;
+            saveToStorage();
+        };
+
+        const getList = () => {
+            if (historyList.length === 0) {
+                loadFromStorage();
+            }
+            return historyList;
+        };
+
+        const add = (url, odataVerbose) => {
+            if (historyList.length > 0 && historyList[0].url.toLocaleLowerCase() === url.toLocaleLowerCase()) {
+                // do nothing, same as last     
+            } else {
+                if (historyList.length >= MAX_HISTORY_ITEMS) {
+                    historyList.pop();
+                }
+                const historyItem = {
+                    url: url,
+                    odataVerbose: odataVerbose,
+                    timestamp: new Date().toISOString(),
+                    //response: response
+                };
+                historyList.unshift(historyItem);
+                saveToStorage();
+            }
+        };
+
+        return {
+            init: loadFromStorage,
+            clear,
+            getList,
+            add
+        };
+    })();
+
+    /* END History */
+
 
     /* POPUP */
 
-    function popupShow(title, contentHtml) {
-        const popup = document.getElementById(HTML_ID_PUPUP);
+    const EVENT_CLOSE = "popup-close";
+    const EVENT_SET_URL = "set-url";
 
-        const html = `
-            <div class="sgart-popup-wrapper">
-                <div class="sgart-pupup-header">
-                    <h2>${title.htmlEncode()}</h2>
-                    <button class="sgart-button sgart-popup-event" data-event="popup-close" title="close popup">Close</button>
-                </div>
-                <div class="sgart-popup-body">${contentHtml}</div>
-            </div>`;
-        popup.innerHTML = html;
-        popup.style.display = 'flex';
-        popup.addEventListener("click", handlePopupClickEvent);
-    }
+    const popup = (function () {
+        let fnHandleClick = undefined;
 
-    function popupHide() {
-        const popup = document.getElementById(HTML_ID_PUPUP);
-        popup.style.display = 'none';
-        popup.innerHTML = '';
-        popup.removeEventListener("click", handlePopupClickEvent);
-    }
+        const show = (title, bodyContentHtml, fnHandle) => {
+            const elmPopup = document.getElementById(HTML_ID_PUPUP);
+            elmPopup.innerHTML = `
+                <div class="sgart-popup-wrapper">
+                    <div class="sgart-pupup-header">
+                        <h2>${title.htmlEncode()}</h2>
+                        <button class="sgart-button sgart-popup-event" data-event="${EVENT_CLOSE}" title="close popup">Close</button>
+                    </div>
+                    <div class="sgart-popup-body">${bodyContentHtml}</div>
+                </div>`;
+            elmPopup.style.display = 'flex';
+            elmPopup.addEventListener("click", fnHandle);
+        };
+
+        const hide = () => {
+            const elmPopup = document.getElementById(HTML_ID_PUPUP);
+            elmPopup.style.display = 'none';
+            elmPopup.innerHTML = '';
+            if (fnHandleClick && typeof fnHandleClick === 'function') {
+                elmPopup.removeEventListener("click", fnHandleClick);
+                fnHandleClick = undefined;
+            }
+        };
+
+        return {
+            show,
+            hide
+        };
+    })();
 
     function handlePopupClickEvent(event) {
         const target = event.target;
         const actionElem = target.closest('.sgart-popup-event');
         if (actionElem) {
             const poupEvent = actionElem.getAttribute('data-event')
-            if (poupEvent === 'popup-close') {
-                popupHide();
-            } else if (poupEvent === 'set-url') {
+            if (poupEvent === EVENT_CLOSE) {
+                popup.hide();
+            } else if (poupEvent === EVENT_SET_URL) {
                 const url = actionElem.getAttribute('data-url');
                 document.getElementById(HTML_ID_TXT_INPUT).value = url;
-                popupHide();
+                popup.hide();
                 handleExecuteClickEvent();
             } else {
                 console.error(LOG_SOURCE, "Unknown popup event:", poupEvent);
@@ -880,15 +966,15 @@
     }
 
     function popupShowExamples() {
-        var s = "";
+        let html = "";
         EXAMPLES.groups.forEach(group => {
-            s += "<div class='sgart-popup-group'><h3>" + group.title.htmlEncode() + "</h3><div>";
+            html += "<div class='sgart-popup-group'><h3>" + group.title.htmlEncode() + "</h3><div>";
             group.actions.forEach(action => {
                 const relativeUrl = '_api/' + action.url + getQueryParam(action.query);
                 const url = (serverRelativeUrlPrefix + relativeUrl).htmlEncode();
                 const title = action.title.htmlEncode();
-                s += "<button class='sgart-popup-action sgart-popup-event'"
-                    + " data-event=\"set-url\""
+                html += "<button class='sgart-popup-action sgart-popup-event'"
+                    + " data-event=\"" + EVENT_SET_URL + "\""
                     + " data-url=\"" + url + "\""
                     + " data-group=\"" + group.id + "\""
                     + " data-action=\"" + action.id + "\""
@@ -896,30 +982,31 @@
                     + "><h4>" + title + "</h4><p>" + relativeUrl + "</p>"
                     + "</button>";
             });
-            s += "</div></div>";
+            html += "</div></div>";
         });
 
-        popupShow("Examples and usage", s);
+        popup.show("Examples and usage", html, handlePopupClickEvent);
     }
 
     function popupShowHistory() {
-        var s = "";
+        let html = "";
+        const historyList = history.getList();
         if (historyList.length === 0) {
-            s = "<p>No history available.</p>";
+            html = "<p>No history available.</p>";
         } else {
-            s += "<div class='sgart-popup-history'><ol>";
+            html += "<div class='sgart-popup-history'><ol>";
             historyList.forEach((historyItem, index) => {
                 const url = historyItem.url.htmlEncode();
                 const date = `${new Date(historyItem.timestamp).toLocaleString()}`.htmlEncode();
-                s += "<li><span>"+ (index+1) + "</span><span>" + date + "</span><button class='sgart-popup-action sgart-popup-event'"
-                    + " data-event=\"set-url\""
+                html += "<li><span>" + (index + 1) + "</span><span>" + date + "</span><button class='sgart-popup-action sgart-popup-event'"
+                    + " data-event=\"" + EVENT_SET_URL + "\""
                     + " data-url=\"" + url + "\""
                     + "><strong>" + url + "</strong>"
                     + "</button></li>";
             });
-            s += "</ol></div>";
+            html += "</ol></div>";
         }
-        popupShow("History", s);
+        popup.show("History", html, handlePopupClickEvent);
     }
 
     /* END POPUP */
@@ -945,26 +1032,17 @@
 
         fetchGetJson(input, modeVerbose).then(data => {
             outputRaw.value = JSON.stringify(data, null, 2);
-            outputPretty.value = JSON.stringify(simplifyObjectOrArray(data), null, 2);
 
-            const tableHtml = buildHtmlTableFromJson(data);
+            const simplified = simplifyObjectOrArray(data);
+            outputPretty.value = JSON.stringify(simplified, null, 2);
+
+            document.getElementById(HTML_ID_LBL_COUNT).innerText = Array.isArray(simplified) ? simplified.length : "1";
+
+            const tableHtml = htmlTableFromJson.buid(data);
             outputTable.innerHTML = tableHtml;
 
             // add to history
-            if (historyList.length > 0 && historyList[0].url === input) {
-                // do nothing, same as last
-            } else {
-                if (historyList.length >= MAX_HISTORY_ITEMS) {
-                    historyList.pop();
-                }
-                const historyItem = {
-                    url: input,
-                    odataVerbose: modeVerbose,
-                    timestamp: new Date().toISOString(),
-                    //response: data
-                };
-                historyList.unshift(historyItem);
-            }
+            history.add(input, modeVerbose);
         }).catch(error => {
             console.error(LOG_SOURCE, "Error executing API request:", error);
             const msg = "Error: " + error.message;
@@ -992,7 +1070,7 @@
         });
     }
 
-    function handleCloseClickEvent() {
+    function handleExitClickEvent() {
         const interfaceDiv = document.getElementById(HTML_ID_WRAPPER);
         document.body.removeChild(interfaceDiv);
         const style = document.head.getElementsByClassName('sgart-inject-style')[0];
@@ -1010,17 +1088,15 @@
         const txtInput = document.getElementById(HTML_ID_TXT_INPUT);
         txtInput.addEventListener("keydown", handleExecuteKeydownEvent);
 
-        document.getElementById(HTML_ID_BTN_CLOSE).addEventListener("click", handleCloseClickEvent);
-
+        document.getElementById(HTML_ID_BTN_EXIT).addEventListener("click", handleExitClickEvent);
         document.getElementById(HTML_ID_BTN_EXAMPLES).addEventListener("click", popupShowExamples);
         document.getElementById(HTML_ID_BTN_HISTORY).addEventListener("click", popupShowHistory);
-
-        document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).onclick = function () {
+        document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).addEventListener("click", () => {
+            document.getElementById(HTML_ID_OUTPUT_RAW).value = "";
             document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
             document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML = "";
-        };
-
-        document.getElementById(HTML_ID_BTN_COPY_OUTPUT).onclick = function () {
+        });
+        document.getElementById(HTML_ID_BTN_COPY_OUTPUT).addEventListener("click", () => {
             if (currentTab === TAB_KEY_TABLE) {
                 copyToClipboard(document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML);
             } else if (currentTab === TAB_KEY_SIMPLE) {
@@ -1028,19 +1104,13 @@
             } else {
                 copyToClipboard(document.getElementById(HTML_ID_OUTPUT_SIMPLE).value);
             }
-        };
+        });
 
         const tabs = document.getElementsByClassName('sgart-button-tab');
         Array.from(tabs).forEach(btn => {
             btn.onclick = handleSwitchTabEvent;
         });
         tabs[0].click();
-
-        // set default
-        const elmTxt = document.getElementById(HTML_ID_TXT_INPUT);
-        txtInput.value = serverRelativeUrlPrefix + "_api/web";
-        txtInput.focus();
-        handleExecuteClickEvent();
     }
 
     function init() {
@@ -1062,6 +1132,14 @@
         injectStyle();
         showInterface();
         addEvents();
+
+        history.init();
+
+        // set default
+        const elmTxt = document.getElementById(HTML_ID_TXT_INPUT);
+        elmTxt.value = serverRelativeUrlPrefix + "_api/web";
+        elmTxt.focus();
+        handleExecuteClickEvent();
     }
 
     init();
