@@ -46,12 +46,14 @@
                     {
                         id: "getSite",
                         title: "Get site",
-                        url: "site"
+                        url: "site",
+                        description: "Retrieve basic information about the current site."
                     },
                     {
                         id: "getSiteId",
                         title: "Get site id",
-                        url: "site/id"
+                        url: "site/id",
+                        description: "Retrieve the unique identifier of the current site."
                     }
                 ]
             },
@@ -62,27 +64,32 @@
                     {
                         id: "getWeb",
                         title: "Get web",
-                        url: "web"
+                        url: "web",
+                        description: "Retrieve metadata for the current web."
                     },
                     {
                         id: "getWebById",
                         title: "Get sub webs",
-                        url: "web/webs"
+                        url: "web/webs",
+                        description: "Retrieve sub-webs (child webs) of the current web."
                     },
                     {
                         id: "getWebSiteUsers",
                         title: "Get site users",
-                        url: "web/siteusers"
+                        url: "web/siteusers",
+                        description: "List users scoped to the web/site."
                     },
                     {
                         id: "getWebSiteGrous",
                         title: "Get site groups",
-                        url: "web/sitegroups"
+                        url: "web/sitegroups",
+                        description: "List security groups defined on the site."
                     },
                     {
                         id: "getWebRoleDefinitions",
                         title: "Get site role definitions",
-                        url: "web/roledefinitions"
+                        url: "web/roledefinitions",
+                        description: "Retrieve role definitions (permission levels) for the web."
                     }
                 ]
             },
@@ -93,28 +100,33 @@
                     {
                         id: "getCurrentUser",
                         title: "Get current user",
-                        url: "web/CurrentUser"
+                        url: "web/CurrentUser",
+                        description: "Retrieve information about the currently authenticated user."
                     },
                     {
                         id: "getUsers",
                         title: "Get users",
-                        url: "web/SiteUsers"
+                        url: "web/SiteUsers",
+                        description: "List site users."
                     },
                     {
                         id: "getUserById",
                         title: "Get user by id",
-                        url: "web/GetUserById(1)"
+                        url: "web/GetUserById(1)",
+                        description: "Retrieve a specific user by numeric id."
                     },
                     {
                         id: "getGroups",
                         title: "Get groups",
-                        url: "web/sitegroups"
+                        url: "web/sitegroups",
+                        description: "List groups in the site."
                     },
                     {
                         id: "getGroupsMembers",
                         title: "Get group members",
-                        url: "web/sitegroups(1)/users"
-                    },
+                        url: "web/sitegroups(1)/users",
+                        description: "List members of a particular site group by id."
+                    }
                 ]
             },
             {
@@ -124,43 +136,51 @@
                     {
                         id: "getLists",
                         title: "Get lists",
-                        url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderBy=Title"
+                        url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderBy=Title",
+                        description: "Retrieve lists in the web with selected fields and ordering."
                     },
                     {
                         id: "getListByGuid",
                         title: "Get list by guid",
-                        url: "web/lists(guid'00000000-0000-0000-0000-000000000000')"
+                        url: "web/lists(guid'00000000-0000-0000-0000-000000000000')",
+                        description: "Get a list by GUID identifier."
                     },
                     {
                         id: "getListByTitle",
                         title: "Get list by title",
-                        url: "web/lists/getbytitle('Documents')"
+                        url: "web/lists/getbytitle('Documents')",
+                        description: "Get a list by its title."
                     },
                     {
                         id: "getListByTitleRootFolder",
                         title: "Get list by title RootFolder",
-                        url: "web/lists/getbytitle('Documents')/RootFolder"
+                        url: "web/lists/getbytitle('Documents')/RootFolder",
+                        description: "Retrieve the root folder metadata for a list."
                     },
                     {
                         id: "getFields",
                         title: "Get fields",
-                        url: "web/lists/getbytitle('Documents')/fields"
+                        url: "web/lists/getbytitle('Documents')/fields",
+                        description: "List fields (columns) of a list."
                     },
                     {
                         id: "getViews",
                         title: "Get views",
-                        url: "web/lists/getbytitle('Documents')/views?$top=100&$orderBy=Title"
+                        url: "web/lists/getbytitle('Documents')/views?$top=100&$orderBy=Title",
+                        description: "List views for a list with ordering and paging."
                     },
                     {
                         id: "getViewsHidden",
                         title: "Get views hidden",
-                        url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderBy=Title&$filter=Hidden eq true"
+                        url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderBy=Title&$filter=Hidden eq true",
+                        description: "List hidden views for a list using a filter."
                     },
                     {
                         id: "getContenttypes",
                         title: "Get content types",
-                        url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderBy=Name"
-                    },
+                        url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderBy=Name",
+                        description: "Retrieve content types associated with the list."
+                    }
                 ]
             },
             {
@@ -170,22 +190,26 @@
                     {
                         id: "getItems",
                         title: "Get items",
-                        url: "web/lists/getbytitle('Documents')/items?$top=10&$orderBy=Id desc"
+                        url: "web/lists/getbytitle('Documents')/items?$top=10&$orderBy=Id desc",
+                        description: "Retrieve items from a list with paging and ordering."
                     },
                     {
                         id: "getItemById",
                         title: "Get item by id",
-                        url: "web/lists/getbytitle('Documents')/items(1)"
+                        url: "web/lists/getbytitle('Documents')/items(1)",
+                        description: "Get a single list item by its id."
                     },
                     {
                         id: "getItemByIdWithSelect",
                         title: "Get item by id with select and expand",
-                        url: "web/lists/getbytitle('Documents')/items(1)?$select=Title,Id,Created,Modified,Author/Title,Editor/Title&$expand=Author,Editor"
+                        url: "web/lists/getbytitle('Documents')/items(1)?$select=Title,Id,Created,Modified,Author/Title,Editor/Title&$expand=Author,Editor",
+                        description: "Retrieve an item with specific fields and expanded lookup/user fields."
                     },
                     {
                         id: "getItemAttachments",
                         title: "Get item attachments",
                         url: "web/lists/getbytitle('Documents')/items(1)/AttachmentFiles",
+                        description: "List attachment files associated with an item."
                     }
                 ]
             },
@@ -196,17 +220,20 @@
                     {
                         id: "getFileById",
                         title: "Get file by id",
-                        url: "web/getfilebyid('00000000-0000-0000-0000-000000000000')"
+                        url: "web/getfilebyid('00000000-0000-0000-0000-000000000000')",
+                        description: "Retrieve a file by its unique id (GUID)."
                     },
                     {
                         id: "getFileByServerRelativeUrl",
                         title: "Get file by server relative url",
-                        url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')"
+                        url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')",
+                        description: "Get file metadata by server-relative URL."
                     },
                     {
                         id: "getFileContent",
                         title: "Get file content",
-                        url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')/$value"
+                        url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')/$value",
+                        description: "Download the raw file content (value endpoint)."
                     }
                 ]
             },
@@ -217,22 +244,26 @@
                     {
                         id: "getFolderByServerRelativeUrl",
                         title: "Get folder by server relative url",
-                        url: "web/getfolderbyserverrelativeurl('Shared Documents')"
+                        url: "web/getfolderbyserverrelativeurl('Shared Documents')",
+                        description: "Retrieve folder metadata by server-relative path."
                     },
                     {
                         id: "getFolderById",
                         title: "Get folder by id",
-                        url: "web/getfolderbyid('00000000-0000-0000-0000-000000000000')"
+                        url: "web/getfolderbyid('00000000-0000-0000-0000-000000000000')",
+                        description: "Retrieve a folder by its unique id."
                     },
                     {
                         id: "getFolderFiles",
                         title: "Get folder files",
-                        url: "web/getfolderbyserverrelativeurl('Shared Documents')/files"
+                        url: "web/getfolderbyserverrelativeurl('Shared Documents')/files",
+                        description: "List files contained in a folder."
                     },
                     {
                         id: "getFolderFileContent",
                         title: "Get folder files",
-                        url: "web/getfolderbyserverrelativeurl('/sites/someSite/Shared Documents/file name')/$value"
+                        url: "web/getfolderbyserverrelativeurl('/sites/someSite/Shared Documents/file name')/$value",
+                        description: "Download a file from a folder via server-relative path (value endpoint)."
                     }
                 ]
             },
@@ -248,7 +279,8 @@
                             mode: "search",
                             filter: "sharepoint (contentclass:STS_Site) Path:\"https://sgart.sharepoint.com/*\"",
                             select: "Title,Path,Description,SiteLogo,WebTemplate,WebId,SiteId,Created,LastModifiedTime"
-                        }
+                        },
+                        description: "Perform a query-based search for sites; includes a query object with mode, filter and selected fields."
                     }
                 ]
             },
@@ -259,7 +291,8 @@
                     {
                         id: "getPMInstance",
                         title: "PeopleManager instance",
-                        url: "SP.UserProfiles.PeopleManager"
+                        url: "SP.UserProfiles.PeopleManager",
+                        description: "Reference to the PeopleManager root object for user profile operations."
                     },
                     {
                         id: "getPMFollowedByMe",
@@ -267,7 +300,8 @@
                         url: "SP.UserProfiles.PeopleManager/getpeoplefollowedbyme",
                         query: {
                             select: "*"
-                        }
+                        },
+                        description: "Get people followed by the current user; may accept select options."
                     },
                     {
                         id: "getPMFollowedBy",
@@ -275,10 +309,9 @@
                         url: "SP.UserProfiles.PeopleManager/getpeoplefollowedby(@v)?@v='i%3A0%23.f%7Cmembership%7Cuser%40domain.onme",
                         query: {
                             select: "*"
-                        }
+                        },
+                        description: "Get people followed by a specified user (example includes encoded parameter)."
                     }
-
-
                 ]
             },
             {
@@ -288,27 +321,32 @@
                     {
                         id: "getTermStoreGroups",
                         title: "Get groups",
-                        url: "v2.1/termStore/groups"
+                        url: "v2.1/termStore/groups",
+                        description: "Retrieve term store groups (taxonomy groups)."
                     },
                     {
                         id: "getTermStoreTermGroups",
                         title: "Get term groups",
-                        url: "v2.1/termStore/termGroups"
+                        url: "v2.1/termStore/termGroups",
+                        description: "Retrieve term groups across the store."
                     },
                     {
                         id: "getTermStoreSets",
                         title: "Get term sets",
-                        url: "v2.1/termStore/groups/{groupid}/sets"
+                        url: "v2.1/termStore/groups/{groupid}/sets",
+                        description: "Retrieve term sets for a given term group (replace {groupid})."
                     },
                     {
                         id: "getTermStoreSetById",
                         title: "Get terms by set id",
-                        url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms"
+                        url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms",
+                        description: "Retrieve terms for a specific term set (replace {groupid}, {termSetId})."
                     },
                     {
                         id: "getTermById",
                         title: "Get terms by set id next level",
-                        url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms/{termId}/terms"
+                        url: "v2.1/termStore/groups/{groupid}/sets/{termSetId}/terms/{termId}/terms",
+                        description: "Retrieve child terms for a specific term (replace {groupid}, {termSetId}, {termId})."
                     }
                 ]
             },
@@ -319,7 +357,8 @@
                     {
                         id: "getWebhooks",
                         title: "Get webhooks",
-                        url: "web/lists/getbytitle('Documents')/subscriptions"
+                        url: "web/lists/getbytitle('Documents')/subscriptions",
+                        description: "List subscriptions (webhooks) for a list."
                     }
                 ]
             },
@@ -330,12 +369,14 @@
                     {
                         id: "getTenantAppCatalog",
                         title: "Get tenant app catalog",
-                        url: "SP_TenantSettings_Current"
+                        url: "SP_TenantSettings_Current",
+                        description: "Retrieve tenant-level app catalog settings or tenant settings endpoint."
                     }
                 ]
             }
         ]
     };
+
 
 
     // encode dei caratteri in html
@@ -521,7 +562,6 @@
             --sgart-btn-color-execute: #097BED;
             }
             .sgart-content-wrapper {
-            font-family: Arial, sans-serif;
             border: 0;
             display: flex;
             flex-direction: column;
@@ -733,38 +773,12 @@
             overflow-x: hidden;
             overflow-y: auto;
             }
-            .sgart-popup .sgart-popup-group {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            height: 100%;
-            }
-            .sgart-popup .sgart-popup-group > div {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding: 10px;
-            height: 100%;
-            flex-wrap: wrap;
-            }
-            .sgart-popup .sgart-popup-action {  
-            border: 1px solid var(--sgart-primary-color);
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            width: 45%;
-            overflow: hidden;
-            text-align: left;
-            background-color: var(--sgart-secondary-color-white);
-            }
-            .sgart-popup .sgart-popup-action h4 {
-            margin: 10px 0;
-            font-size: 16px;
-            }
-            .sgart-popup .sgart-popup-action p {
-            word-wrap: break-word;
-            margin: 10px 0;
-            }
+            .sgart-popup .sgart-popup-group { display: flex; flex-direction: column; padding: 10px;height: 100%; }
+            .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: space-between; padding: 10px; height: 100%; flex-wrap: wrap; }
+            .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 49%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
+            .sgart-popup h3 { margin: 0; font-size: 18px;}
+            .sgart-popup .sgart-popup-action h4 { margin: 0 0 8px 0; font-size: 16px;}
+            .sgart-popup .sgart-popup-action p { word-wrap: break-word; margin: 8px 0;}
             .sgart-popup .sgart-popup-history li {
             display: flex;
             flex-direction: row;
@@ -997,7 +1011,9 @@
                     + " data-group=\"" + group.id + "\""
                     + " data-action=\"" + action.id + "\""
                     + " title=\"" + url + "\""
-                    + "><h4>" + title + "</h4><p>" + relativeUrl + "</p>"
+                    + "><h4>" + title + "</h4>"
+                    +  "<p>" + action.description.htmlEncode() + "</p>"
+                    +  "<div>Url: " + relativeUrl + "</div>"
                     + "</button>";
             });
             html += "</div></div>";
