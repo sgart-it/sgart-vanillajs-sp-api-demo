@@ -537,8 +537,6 @@
             box-sizing: border-box;
             }   
             .sgart-content-wrapper input, .sgart-content-wrapper textarea, .sgart-content-wrapper select, .sgart-content-wrapper .sgart-button {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
             height: 32px;
             padding: 0 10px;
             border: 1px solid var(--sgart-primary-color);
@@ -601,9 +599,11 @@
             justify-content: space-between;
             }       
             .sgart-header .sgart-button {
-            background-color: var(--sgart-secondary-color);
-            color: var(--sgart-secondary-color-white);
-            padding: 0px 20px;
+                background-color: var(--sgart-secondary-color);
+                border: none;
+                color: var(--sgart-secondary-color-white);
+                padding: 5px;
+                width: auto;
             }
             .sgart-header .logo {
             height: 33px;
@@ -666,7 +666,7 @@
             }
             .sgart-content-wrapper .sgart-output-txt, .sgart-content-wrapper .sgart-output-table {
             width: 100%;    
-            height: 100%;
+            height: auto;
             flex-grow: 1;
             gap: 10px;
             font-family: monospace;
@@ -800,7 +800,7 @@
             <div class="sgart-header">
                 <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
                 <h3>Tool SharePoint API Demo (Vanilla JS)</h3>
-                <button id="${HTML_ID_BTN_EXIT}" class="sgart-button">Exit</button>
+                <button id="${HTML_ID_BTN_EXIT}" class="sgart-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M128 128h1792v1792H128V128zm1664 1664V256H256v1536h1536zM621 1517l-90-90 402-403-402-403 90-90 403 402 403-402 90 90-402 403 402 403-90 90-403-402-403 402z"></path></svg>Exit</button>
             </div>
             <div class="sgart-body">
                 <div class="sgart-input-area">
@@ -815,7 +815,7 @@
 					<div class="sgart-toolbar-left">
 						<button id="${HTML_ID_BTN_EXECUTE}" class="sgart-button" title="Execute api call"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 1024L512 1920V128l1280 896zM640 1674l929-650-929-650v1300z"></path></svg><span>Execute</span></button>
 						<span class="sgart-separator">|</span>
-						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button" title="Clear all outputs"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1115 1024l914 915-90 90-915-914-915 914-90-90 914-915L19 109l90-90 915 914 915-914 90 90-914 915z"></path></svg><span>Clear</span></button>
+						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button" title="Clear all outputs"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1115 1792h421v128H453L50 1516q-24-24-37-56t-13-68q0-35 13-67t38-58L1248 69l794 795-927 928zm133-1542L538 960l614 613 709-709-613-614zM933 1792l128-128-613-614-306 307q-14 14-14 35t14 35l364 365h427z"></path></svg><span>Clear</span></button>
 						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button" title="Copy current response"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1920 805v1243H640v-384H128V0h859l384 384h128l421 421zm-384-37h165l-165-165v165zM640 384h549L933 128H256v1408h384V384zm1152 512h-384V512H768v1408h1024V896z"></path></svg><span>Copy</span></button>
 						<span class="sgart-separator">|</span>
                         <span>Output:</span>
@@ -826,13 +826,12 @@
                         <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 0v1792H256V0h1536zm-128 128H384v1536h1280V128zM640 896H512V768h128v128zm896 0H768V768h768v128zm-896 384H512v-128h128v128zm896 0H768v-128h768v128zM640 512H512V384h128v128zm896 0H768V384h768v128z"></path></svg><span>Examples</span></button>
                         <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1024 512v549l365 366-90 90-403-402V512h128zm944 113q80 192 80 399t-80 399q-78 183-220 325t-325 220q-192 80-399 80-174 0-336-57-158-55-289-156-130-101-223-238-47-69-81-144t-57-156l123-34q40 145 123 266t198 208 253 135 289 48q123 0 237-32t214-90 182-141 140-181 91-214 32-238q0-123-32-237t-90-214-141-182-181-140-214-91-238-32q-130 0-252 36T545 268 355 429 215 640h297v128H0V256h128v274q17-32 37-62t42-60q94-125 220-216Q559 98 710 49t314-49q207 0 399 80 183 78 325 220t220 325z"></path></svg><span>History</span></button>
                         <span class="sgart-separator">|</span>
-                        <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span>
-                        <span title="Response items count">Count: <span id="${HTML_ID_LBL_COUNT}"></span></span>
+                        <span>Status: <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span></span>
+                        <span title="Response items count">Count: <strong id="${HTML_ID_LBL_COUNT}"></strong></span>
 
 					</div>
 					<div class="sgart-toolbar-right"><small>v. ${VERSION}</small></div>
                 </div>
-
                 <div class="sgart-output-area">
                     <div>
                         <textarea id="${HTML_ID_OUTPUT_RAW}" class="sgart-output-txt"></textarea>
@@ -847,17 +846,13 @@
     }
 
     const fetchGetJson = async (url, odataVerbose) => {
-        /* to paste into the 'Browser Developer Console' in another Tenant */
-
         const ct = "application/json; odata=" + (odataVerbose ? "verbose" : "nometadata");
         const response = await fetch(url, { method: "GET", headers: { "Accept": ct, "Content-Type": ct } });
         const data = await response.json();
-
         return {
             status: response.status,
             data: data ?? {}
         };
-
     };
 
     /* History */
