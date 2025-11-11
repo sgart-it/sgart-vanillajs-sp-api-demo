@@ -3,7 +3,7 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-10";
+    const VERSION = "1.2025-11-11";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -377,6 +377,24 @@
         ]
     };
 
+    const console = {
+        log: (msg1, msg2) => {
+            window.console.log("%c" + LOG_SOURCE, 'color: #000; background: #5cb85c; padding: 1px 4px;', msg1, msg2 ?? '');
+        },
+        debug: (msg1, msg2) => {
+            window.console.debug("%c" + LOG_SOURCE, 'color: #000; background: #5bc0de; padding: 1px 4px;', msg1, msg2 ?? '');
+        },
+        info: (msg1, msg2) => {
+            window.console.info("%c" + LOG_SOURCE, 'color: #000; background: #5cb85c; padding: 1px 4px;', msg1, msg2 ?? '');
+        },
+        warn: (msg1, msg2) => {
+            window.console.warn("%c" + LOG_SOURCE, 'color: #000; background: #f0ad4e; padding: 1px 4px', msg1, msg2 ?? '');
+        },
+        error: (msg1, msg2) => {
+            window.console.error("%c" + LOG_SOURCE, 'color: #fff; background: #d9534f; padding: 1px 4px', msg1, msg2 ?? '');
+        }
+    };
+
 
 
     // encode dei caratteri in html
@@ -388,7 +406,7 @@
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => {
-                console.log('Text copied to clipboard:', text);
+                console.debug('Text copied to clipboard:', text);
             })
             .catch(err => {
                 console.error('Failed to copy text: ', err);
@@ -397,30 +415,30 @@
 
     const simplifyObjectOrArray = (response) => {
         if (!response) {
-            console.debug(LOG_SOURCE, 'response is undefined or null');
+            console.debug('response is undefined or null');
             return {};
         }
 
         if (response.value && Array.isArray(response.value)) {
-            // console.debug(LOG_SOURCE, 'response.value is an array', response);
+            // console.debug('response.value is an array', response);
             return response.value
         }
 
         if (response.d) {
             if (response.d.results && Array.isArray(response.d.results)) {
-                // console.debug(LOG_SOURCE, 'response.d.results is an array', response);
+                // console.debug('response.d.results is an array', response);
                 return response.d.results;
             } else {
-                // console.debug(LOG_SOURCE, 'response.d is a single object', response);
+                // console.debug('response.d is a single object', response);
                 return response.d;
             }
         }
 
         if (Array.isArray(response)) {
-            // console.debug(LOG_SOURCE, 'response is an array', response);
+            // console.debug('response is an array', response);
             return response;
         }
-        // console.debug(LOG_SOURCE, 'response is object', response);
+        // console.debug('response is object', response);
         return response;
     };
 
@@ -499,9 +517,9 @@
 
         const buildTable = (items) => {
             const data = simplifyObjectOrArray(items);
-            // console.debug(LOG_SOURCE, 'buildTable: items is object', data);
+            // console.debug('buildTable: items is object', data);
             if (!items) {
-                // console.debug(LOG_SOURCE, 'buildTable: items is undefined or null');
+                // console.debug('buildTable: items is undefined or null');
                 return { columns: [], items: [] };
             }
             if (Array.isArray(data)) {
@@ -548,6 +566,7 @@
         return q;
     }
 
+    const BASE_CLASS = "sgart-it-sp-api-demo-wrapper-1sdfy23";
     function injectStyle() {
         const css = `
             :root{
@@ -559,237 +578,176 @@
             --sgart-secondary-color-dark: #060606;
             --sgart-secondary-color-white: #ffffff;
             --sgart-secondary-color-gray-light: #e6e6e6;
-            --sgart-btn-color-execute: #097BED;
+            --sgart-btn-color-execute: #f0ad4e;
+            --sgart-btn-color-execute-border: #aa6708;
             }
-            .sgart-content-wrapper {
-            border: 0;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--sgart-secondary-color-white);
-            margin: 0;
-            padding: 0;
-            z-index: 10000;
-            box-sizing: border-box;
+            .${BASE_CLASS} {
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                font-weight: normal;
+                line-height: 1.6;
+                border: 0;
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: var(--sgart-secondary-color-white);
+                color: var(--sgart-secondary-color-dark);
+                margin: 0;
+                padding: 0;
+                z-index: 10000;
+                box-sizing: border-box;
             }   
-            .sgart-content-wrapper input, .sgart-content-wrapper textarea, .sgart-content-wrapper select, .sgart-content-wrapper .sgart-button {
-            height: 32px;
-            padding: 0 10px;
-            border: 1px solid var(--sgart-primary-color);
-            background-color: var(--sgart-secondary-color-white);
-            box-sizing: border-box;
+            .${BASE_CLASS} input, .${BASE_CLASS} textarea, .${BASE_CLASS} select, .${BASE_CLASS} .sgart-button {
+                height: 32px;
+                padding: 0 10px;
+                border: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-secondary-color-white);
+                box-sizing: border-box;
+                background-image: none;
+                border-radius: 2px;
             }
-            .sgart-content-wrapper select {
-            width: 180px;
-            }
-            .sgart-content-wrapper #sgart-api-demo {
-            width: 200px;
-            }
-            .sgart-content-wrapper .sgart-button  {
-            background-color: var(--sgart-primary-color);
-            color: var(--sgart-secondary-color-white);
-            padding: 0 10px;
-            cursor: pointer;
-            width: 120px;
-            overflow: hidden;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            }
-            .sgart-content-wrapper .sgart-button svg {
-            color: var(--sgart-secondary-color-white);
-            fill: var(--sgart-secondary-color-white);
-            height: 20px;
-            width: 20px;
-            }
-            .sgart-content-wrapper .sgart-button.sgart-button-tab {
-            background-color: var(--sgart-primary-color-light);
-            color: var(--sgart-secondary-color);
-            }
-            .sgart-content-wrapper .sgart-button.selected, .sgart-content-wrapper .sgart-button:hover, .sgart-content-wrapper .sgart-button.sgart-button-tab.selected, .sgart-content-wrapper .sgart-button.sgart-button-tab:hover {
-            background-color: var(--sgart-primary-color-hover);
-            color: var(--sgart-secondary-color-white);
-            font-weight: bold;
-            }
-            #${HTML_ID_BTN_EXECUTE} {
-            background-color: var(--sgart-btn-color-execute);
-            }
-            .sgart-button.sgart-button-tab:hover 
-            {
-            border-color: var(--sgart-secondary-color);
-            }
-            .sgart-content-wrapper .sgart-separator{
-            margin: 0;
-            }
-            .sgart-header {
-            background-color: var(--sgart-secondary-color);  
-            color: white;
-            padding: 5px 10px;
-            border-bottom: 1px solid var(--sgart-secondary-color-gray-light);
-            height: 40px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            }       
-            .sgart-header .sgart-button {
-                background-color: var(--sgart-secondary-color);
-                border: none;
+            .${BASE_CLASS} select { width: 180px; }
+            .${BASE_CLASS} #sgart-api-demo { width: 200px; }
+            .${BASE_CLASS} .sgart-button  {
+                background-color: var(--sgart-primary-color);
                 color: var(--sgart-secondary-color-white);
+                padding: 0 10px;
+                cursor: pointer;
+                width: 120px;
+                overflow: hidden;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+            }
+            .${BASE_CLASS} .sgart-button svg { color: var(--sgart-secondary-color-white); fill: var(--sgart-secondary-color-white); height: 20px; width: 20px; }
+            .${BASE_CLASS} .sgart-button.sgart-button-tab { background-color: var(--sgart-primary-color-light); color: var(--sgart-secondary-color); }
+            .${BASE_CLASS} .sgart-button.selected, .${BASE_CLASS} .sgart-button:hover, .${BASE_CLASS} .sgart-button.sgart-button-tab.selected, .${BASE_CLASS} .sgart-button.sgart-button-tab:hover {
+                background-color: var(--sgart-primary-color-hover);
+                color: var(--sgart-secondary-color-white);
+                font-weight: bold;
+            }
+            #${HTML_ID_BTN_EXECUTE} { background-color: var(--sgart-btn-color-execute); border: 1px solid var(--sgart-btn-color-execute-border); color: var(--sgart-secondary-color-dark)}
+            #${HTML_ID_BTN_EXECUTE} svg { fill: var(--sgart-secondary-color-dark);}
+            .${BASE_CLASS} .sgart-button.sgart-button-tab:hover { border-color: var(--sgart-secondary-color); }
+            .${BASE_CLASS} .sgart-separator { margin: 0; }
+            .${BASE_CLASS} .sgart-header {
+                position: relative;
+                background-color: var(--sgart-secondary-color);  
+                color: var(--sgart-secondary-color-white);
+                padding: 5px 10px;
+                border-bottom: 1px solid var(--sgart-secondary-color-gray-light);
+                height: 40px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }     
+            .${BASE_CLASS} .sgart-header h1 { font-size: 1.2em; font-weight: bold; margin: 0; }  
+            .${BASE_CLASS} .sgart-header .sgart-button { background-color: var(--sgart-secondary-color); border: 1px solid var(--sgart-secondary-color); color: var(--sgart-secondary-color-white); padding: 5px 10px; width: 80px; }
+            .${BASE_CLASS} .sgart-header .sgart-button:hover { border: 1px solid var(--sgart-secondary-color-white); font-weight: normal; }
+            .${BASE_CLASS} .sgart-header .logo { height: 33px; margin-right: 10px; }
+            .${BASE_CLASS} .sgart-toolbar { display:flex; flex-direction: row; align-items: center; justify-content: space-between; }
+            .${BASE_CLASS} .sgart-toolbar-left { display: flex; gap: 10px; justify-content: left; align-items: center; flex-wrap: wrap; }
+            .${BASE_CLASS} .sgart-toolbar-right{ justify-content: right; }
+            .${BASE_CLASS} .sgart-body { display: flex; flex-direction: column; flex-grow: 1; padding: 10px; gap: 10px; font-weight: normal; }
+            .${BASE_CLASS} .sgart-body label { font-weight: normal; padding: 0; text-wrap-mode: nowrap; }   
+            .${BASE_CLASS} .sgart-input-area { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+            .${BASE_CLASS} .sgart-input { flex-grow: 1; }
+            .${BASE_CLASS} .sgart-output-area { flex-grow: 1; display: flex; overflow: hidden; position: relative; }
+            .${BASE_CLASS} .sgart-output-area > div {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;    
+                overflow: auto;
+                flex-grow: 1;   
+                display: flex;
+                box-sizing: border-box;
+                border: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-secondary-color-white);
+            }
+            .${BASE_CLASS} .sgart-output-area table { border-collapse: collapse; width: 100%; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color-dark);}
+            .${BASE_CLASS} .sgart-output-txt, .${BASE_CLASS} .sgart-output-table {
+                width: 100%;    
+                height: auto;
+                flex-grow: 1;
+                gap: 10px;
+                font-family: monospace;
+                font-size: 14px;
+                resize: none;
+                box-sizing: border-box;
+                border: none;
+            }
+            .${BASE_CLASS} table th {
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
+                text-align: left;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
                 padding: 5px;
-                width: auto;
             }
-            .sgart-header .logo {
-            height: 33px;
-            margin-right: 10px;
+            .${BASE_CLASS} .sgart-http-status { border: 1px solid var(--sgart-secondary-color); padding: 0; background-color: var(--sgart-secondary-color-gray-light); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
+            .${BASE_CLASS} .sgart-http-status-100 { background-color: #e7f3fe; color: #31708f; border-color: #bce8f1; }  
+            .${BASE_CLASS} .sgart-http-status-200 { background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6; }
+            .${BASE_CLASS} .sgart-http-status-300 { background-color: #fcf8e3; color: #8a6d3b; border-color: #faebcc; }
+            .${BASE_CLASS} .sgart-http-status-400 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }
+            .${BASE_CLASS} .sgart-http-status-500 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }   
+            .${BASE_CLASS} .sgart-label-count { border: 1px solid var(--sgart-secondary-color-gray-light); padding: 0; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 70px; height: 32px; align-items: center; justify-content: center; }
+            .${BASE_CLASS} .sgart-popup {
+                position: fixed;
+                display: none;   /*flex;*/
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                backdrop-filter: blur(5px);
+                z-index: 10001;
+                padding: 40px 20px 20px 20px;
             }
-                .sgart-toolbar {
-                    display:flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                .sgart-toolbar-left {
-            display: flex;
-            gap: 10px;
-            justify-content: left;
-            align-items: center;
-            flex-wrap: wrap;
-                }
-                .sgart-toolbar-right{ 
-                    justify-content: right;
-                }
-            .sgart-body {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            padding: 10px;
-            gap: 10px;
-            }   
-            .sgart-input-area {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-between;
+            .${BASE_CLASS} .sgart-popup .sgart-popup-wrapper {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background-color: var(--sgart-secondary-color-white);
+                border: 2px solid var(--sgart-primary-color);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 10002;
             }
-            .sgart-input {
-            flex-grow: 1;   
+            .${BASE_CLASS} .sgart-popup .sgart-pupup-header {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                height: 40px;
+                border-bottom: 1px solid var(--sgart-primary-color);
+                background-color: var(--sgart-primary-color);
+                color: var(--sgart-secondary-color-white);
             }
-            .sgart-output-area {
-            flex-grow: 1;   
-            display: flex;
-            overflow: hidden;
-            position: relative;
+            .${BASE_CLASS} .sgart-popup .sgart-popup-body {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                height: 100%;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
-            .sgart-output-area > div {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;    
-            overflow: auto;
-            flex-grow: 1;   
-            display: flex;
-            box-sizing: border-box;
-            border: 1px solid var(--sgart-primary-color);
-            background-color: var(--sgart-secondary-color-white);
-            }
-            .sgart-output-area table {
-            border-collapse: collapse;
-            width: 100%;
-            }
-            .sgart-content-wrapper .sgart-output-txt, .sgart-content-wrapper .sgart-output-table {
-            width: 100%;    
-            height: auto;
-            flex-grow: 1;
-            gap: 10px;
-            font-family: monospace;
-            resize: none;
-            box-sizing: border-box;
-            border: none;
-            }
-            .sgart-content-wrapper table th {
-            background-color: var(--sgart-primary-color);
-            color: var(--sgart-secondary-color-white);
-            text-align: left;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            padding: 5px;
-            }
-            .sgart-content-wrapper .sgart-http-status {
-            border: 1px solid var(--sgart-secondary-color);
-            padding: 5px 10px;
-            background-color: var(--sgart-secondary-color-gray-light);
-            color: var(--sgart-secondary-color);
-            }
-            .sgart-content-wrapper .sgart-http-status-100 { background-color: #e7f3fe; color: #31708f; border-color: #bce8f1; }  
-            .sgart-content-wrapper .sgart-http-status-200 { background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6; }
-            .sgart-content-wrapper .sgart-http-status-300 { background-color: #fcf8e3; color: #8a6d3b; border-color: #faebcc; }
-            .sgart-content-wrapper .sgart-http-status-400 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }
-            .sgart-content-wrapper .sgart-http-status-500 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }   
-            .sgart-popup {
-            position: fixed;
-            display: none;   /*flex;*/
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            backdrop-filter: blur(5px);
-            z-index: 10001;
-            padding: 40px 20px 20px 20px;
-            }
-            .sgart-popup .sgart-popup-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            background-color: var(--sgart-secondary-color-white);
-            border: 2px solid var(--sgart-primary-color);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 10002;
-            }
-            .sgart-popup .sgart-pupup-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            height: 40px;
-            border-bottom: 1px solid var(--sgart-primary-color);
-            background-color: var(--sgart-primary-color);
-            color: var(--sgart-secondary-color-white);
-            }
-            .sgart-popup .sgart-popup-body {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            height: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
-            }
-            .sgart-popup .sgart-popup-group { display: flex; flex-direction: column; padding: 10px;height: 100%; }
-            .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: space-between; padding: 10px; height: 100%; flex-wrap: wrap; }
-            .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 49%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
-            .sgart-popup h3 { margin: 0; font-size: 18px;}
-            .sgart-popup .sgart-popup-action h4 { margin: 0 0 8px 0; font-size: 16px;}
-            .sgart-popup .sgart-popup-action p { word-wrap: break-word; margin: 8px 0;}
-            .sgart-popup .sgart-popup-history li {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin: 5px 0;
-            gap: 10px;
-            justify-content: space-between;
-            }
-            .sgart-popup .sgart-popup-history button {
-            flex: auto;
-            }
+            .${BASE_CLASS} .sgart-popup h3 { margin: 0; font-size: 18px;}
+            .${BASE_CLASS} .sgart-popup .sgart-popup-group { display: flex; flex-direction: column; padding: 10px;height: 100%; }
+            .${BASE_CLASS} .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: space-between; padding: 10px; height: 100%; flex-wrap: wrap; }
+            .${BASE_CLASS} .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 49%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
+            .${BASE_CLASS} .sgart-popup .sgart-popup-action h4 { margin: 0 0 8px 0; font-size: 16px;}
+            .${BASE_CLASS} .sgart-popup .sgart-popup-action p { word-wrap: break-word; margin: 8px 0;}
+            .${BASE_CLASS} .sgart-popup .sgart-popup-history li { display: flex; flex-direction: row; align-items: center; margin: 5px 0; gap: 10px; justify-content: space-between;}
+            .${BASE_CLASS} .sgart-popup .sgart-popup-history button { flex: auto;}
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
         if (stylePrev) {
@@ -809,11 +767,11 @@
         }
         const interfaceDiv = document.createElement('div');
         interfaceDiv.id = HTML_ID_WRAPPER;
-        interfaceDiv.className = 'sgart-content-wrapper';
+        interfaceDiv.className = BASE_CLASS;
         interfaceDiv.innerHTML = `
             <div class="sgart-header">
                 <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
-                <h3>Tool SharePoint API Demo (Vanilla JS)</h3>
+                <h1>Tool SharePoint API Demo (Vanilla JS)</h1>
                 <button id="${HTML_ID_BTN_EXIT}" class="sgart-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M128 128h1792v1792H128V128zm1664 1664V256H256v1536h1536zM621 1517l-90-90 402-403-402-403 90-90 403 402 403-402 90 90-402 403 402 403-90 90-403-402-403 402z"></path></svg>Exit</button>
             </div>
             <div class="sgart-body">
@@ -832,7 +790,7 @@
 						<button id="${HTML_ID_BTN_CLEAR_OUTPUT}" class="sgart-button" title="Clear all outputs"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1115 1792h421v128H453L50 1516q-24-24-37-56t-13-68q0-35 13-67t38-58L1248 69l794 795-927 928zm133-1542L538 960l614 613 709-709-613-614zM933 1792l128-128-613-614-306 307q-14 14-14 35t14 35l364 365h427z"></path></svg><span>Clear</span></button>
 						<button id="${HTML_ID_BTN_COPY_OUTPUT}" class="sgart-button" title="Copy current response"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1920 805v1243H640v-384H128V0h859l384 384h128l421 421zm-384-37h165l-165-165v165zM640 384h549L933 128H256v1408h384V384zm1152 512h-384V512H768v1408h1024V896z"></path></svg><span>Copy</span></button>
 						<span class="sgart-separator">|</span>
-                        <span>Output:</span>
+                        <label>Output:</label>
 						<button id="${HTML_ID_TAB_RAW}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_RAW}" data-tab-control-id="${HTML_ID_OUTPUT_RAW}" title="API Response">RAW</button>
 						<button id="${HTML_ID_TAB_SIMPLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_SIMPLE}" data-tab-control-id="${HTML_ID_OUTPUT_SIMPLE}" title="Response with 'value' or 'd' property removed">Simple</button>
 						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
@@ -840,8 +798,8 @@
                         <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 0v1792H256V0h1536zm-128 128H384v1536h1280V128zM640 896H512V768h128v128zm896 0H768V768h768v128zm-896 384H512v-128h128v128zm896 0H768v-128h768v128zM640 512H512V384h128v128zm896 0H768V384h768v128z"></path></svg><span>Examples</span></button>
                         <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1024 512v549l365 366-90 90-403-402V512h128zm944 113q80 192 80 399t-80 399q-78 183-220 325t-325 220q-192 80-399 80-174 0-336-57-158-55-289-156-130-101-223-238-47-69-81-144t-57-156l123-34q40 145 123 266t198 208 253 135 289 48q123 0 237-32t214-90 182-141 140-181 91-214 32-238q0-123-32-237t-90-214-141-182-181-140-214-91-238-32q-130 0-252 36T545 268 355 429 215 640h297v128H0V256h128v274q17-32 37-62t42-60q94-125 220-216Q559 98 710 49t314-49q207 0 399 80 183 78 325 220t220 325z"></path></svg><span>History</span></button>
                         <span class="sgart-separator">|</span>
-                        <span>Status: <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span></span>
-                        <span title="Response items count">Count: <strong id="${HTML_ID_LBL_COUNT}"></strong></span>
+                        <span><label>Status:</label> <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span></span>
+                        <span title="Response items count"><label>Count:</label> <strong id="${HTML_ID_LBL_COUNT}" class="sgart-label-count"></strong></span>
 
 					</div>
 					<div class="sgart-toolbar-right"><small>v. ${VERSION}</small></div>
@@ -862,11 +820,19 @@
     const fetchGetJson = async (url, odataVerbose) => {
         const ct = "application/json; odata=" + (odataVerbose ? "verbose" : "nometadata");
         const response = await fetch(url, { method: "GET", headers: { "Accept": ct, "Content-Type": ct } });
-        const data = await response.json();
-        return {
-            status: response.status,
-            data: data ?? {}
-        };
+        try {
+            const data = await response.json();
+            return {
+                status: response.status,
+                data: data ?? {}
+            };
+        } catch (error) {
+            console.error("Error parsing JSON response:", error);
+            return {
+                status: response.status,
+                data: { error: error.message }
+            };
+        }
     };
 
     /* History */
@@ -887,7 +853,7 @@
                     }
                 }
             } catch (error) {
-                console.error(LOG_SOURCE, "Error loading history from local storage:", error);
+                console.error("Error loading history from local storage:", error);
             }
         };
 
@@ -896,7 +862,7 @@
                 const historyJson = JSON.stringify(historyList);
                 localStorage.setItem(LOCAL_STORAGE_KEY_HISTORY, historyJson);
             } catch (error) {
-                console.error(LOG_SOURCE, "Error saving history to local storage:", error);
+                console.error("Error saving history to local storage:", error);
             }
         };
 
@@ -992,7 +958,7 @@
                 popup.hide();
                 handleExecuteClickEvent();
             } else {
-                console.error(LOG_SOURCE, "Unknown popup event:", poupEvent);
+                console.error("Unknown popup event:", poupEvent);
             }
         }
     }
@@ -1012,8 +978,8 @@
                     + " data-action=\"" + action.id + "\""
                     + " title=\"" + url + "\""
                     + "><h4>" + title + "</h4>"
-                    +  "<p>" + action.description.htmlEncode() + "</p>"
-                    +  "<div>Url: " + relativeUrl + "</div>"
+                    + "<p>" + action.description.htmlEncode() + "</p>"
+                    + "<div>Url: " + relativeUrl + "</div>"
                     + "</button>";
             });
             html += "</div></div>";
@@ -1095,11 +1061,11 @@
             // add to history
             history.add(input, modeVerbose);
         }).catch(error => {
-            console.error(LOG_SOURCE, "Error executing API request:", error);
+            console.error("Error executing API request:", error);
             const msg = "Error: " + error.message;
             outputRaw.value = msg;
             outputPretty.value = msg;
-            outputArea.value = msg;
+            outputTable.value = msg;
         });
     }
 
@@ -1128,7 +1094,7 @@
         if (style) {
             document.head.removeChild(style);
         }
-        console.log(LOG_SOURCE, "Interface closed");
+        console.log("Interface closed");
     }
 
 
@@ -1165,7 +1131,7 @@
     }
 
     function init() {
-        console.log(LOG_SOURCE, `v.${VERSION} - https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post`);
+        console.log(`v.${VERSION} - https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post`);
 
         const i = window.location.pathname.toLocaleLowerCase().indexOf('/sites/');
         if (i >= 0) {
@@ -1178,7 +1144,7 @@
         } else {
             serverRelativeUrlPrefix = "/";
         }
-        console.log(LOG_SOURCE, "Site detected in URL", serverRelativeUrlPrefix);
+        console.debug("Site detected in URL:", serverRelativeUrlPrefix);
 
         injectStyle();
         showInterface();
