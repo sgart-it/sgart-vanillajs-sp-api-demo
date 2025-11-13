@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="it">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Template textarea</title>
+    <style>
+        :root {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+            margin: 0
+        }
+
+        body {
+            padding: 20px;
+            background: #f6f8fa;
+            color: #111
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600
+        }
+
+        textarea,
+        .result {
+            width: 100%;
+            min-height: 160px;
+            max-height: 80vh;
+            overflow: auto;
+            padding: 12px;
+            resize: vertical;
+            font-size: 14px;
+            line-height: 1.4;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #0366d6;
+            color: #fff;
+            cursor: pointer
+        }
+
+        button.ghost {
+            background: #e6eefc;
+            color: #0366d6;
+            border: 1px solid #cfe0ff
+        }
+
+        .meta {
+            margin-left: auto;
+            color: #6b7280;
+            font-size: 13px
+        }
+
+        :root {
+            --sgart-it-format-json-to-tree-prop: #0451a5;
+            --sgart-it-format-json-to-tree-string: #a31515;
+            --sgart-it-format-json-to-tree-number: #098658;
+            --sgart-it-format-json-to-tree-boolean: #0000ff;
+            --sgart-it-format-json-to-tree-type: #666;
+            --sgart-it-format-json-to-tree-btn: #222;
+        }
+
+        .sgart-it-format-json-to-tree, .sgart-it-format-json-to-tree * {
+            font-family: consolas, menlo, monaco, "Ubuntu Mono", source-code-pro, monospace;
+            font-size: 14px;
+        }
+
+        .sgart-it-format-json-to-tree var,
+        .sgart-it-format-json-to-tree i,
+        .sgart-it-format-json-to-tree em {
+            font-style: italic;
+            text-decoration: none;
+            font-weight: normal;
+            color: var(--sgart-it-format-json-to-tree-type);
+        }
+
+        .sgart-it-format-json-to-tree i {
+            padding: 0 5px 0 0;
+        }
+
+        .sgart-it-format-json-to-tree label {
+            display: inline;
+            font-style: normal;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0;
+        }
+
+        .sgart-it-format-json-to-tree .button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            margin: 0 5px 0 0;
+            border-radius: 0;
+            border: 1px solid var(--sgart-it-format-json-to-tree-btn);
+            color: var(--sgart-it-format-json-to-tree-btn);
+            background-color: transparent;
+            overflow: hidden;
+            font-size: 17px;
+        }
+        .sgart-it-format-json-to-tree .button svg{
+            width: 11px;
+            height: 11px;
+             pointer-events: none;
+        }
+        .sgart-it-format-json-to-tree ul {
+            list-style: none;
+        }
+
+        .sgart-it-format-json-to-tree ul li {
+            min-height: 30px;
+            line-height: 30px;
+            vertical-align: middle;
+        }
+
+        .sgart-it-format-json-to-tree label {
+            color: var(--sgart-it-format-json-to-tree-prop);
+        }
+
+        .sgart-it-format-json-to-tree .key-value-boolean span,
+        .sgart-it-format-json-to-tree .key-value-null span,
+        .sgart-it-format-json-to-tree .key-value-undefined span {
+            color: var(--sgart-it-format-json-to-tree-boolean);
+        }
+
+        .sgart-it-format-json-to-tree .key-value-string span {
+            color: var(--sgart-it-format-json-to-tree-string);
+        }
+
+        .sgart-it-format-json-to-tree .key-value-number span {
+            color: var(--sgart-it-format-json-to-tree-number);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Template: text box (textarea)</h1>
+
+        <label for="multi">Testo (area multipla)</label>
+        <textarea id="multi" placeholder="Scrivi qui...">
+{
+  "AllowRssFeeds": true,
+  "AlternateCssUrl": "",
+  "AppInstanceId": "00000000-0000-0000-0000-000000000000",
+  "ClassicWelcomePage": null,
+  "Configuration": 0,
+  "Created": "2025-07-16T15:00:24.457",
+  "CurrentChangeToken": {
+    "StringValue": "1;2;09998456-d760-4407-8738-57751fcb4961;638984908830000000;1204751671"
+  },
+  "CustomMasterUrl": "/sites/PennyITA/_catalogs/masterpage/seattle.master",
+  "Description": "",
+  "HideTitleInHeader": false,
+  "HorizontalQuickLaunch": true,
+  "OverwriteTranslationsOnChange": false,
+  "ResourcePath": {
+    "DecodedUrl": "https://sgart.sharepoint.com/sites/PennyITA"
+  },
+  "QuickLaunchEnabled": true,
+  "arrDemo": [1,2,3,4]
+}
+        </textarea>
+
+        <div class="controls">
+            <button id="parse">Parse</button>
+            <button id="save">Salva</button>
+            <button id="download" class="ghost">Scarica .txt</button>
+            <button id="clear" class="ghost">Pulisci</button>
+            <div class="meta"><span id="chars">0</span> caratteri</div>
+        </div>
+    </div>
+    <div class="container">
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // Simple autosize + save/load + export
+        const area = document.getElementById('multi');
+        const chars = document.getElementById('chars');
+        const KEY = 'template_textarea_v1';
+
+        function updateMeta() {
+            chars.textContent = area.value.length;
+        }
+
+        function autosize(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        // load saved content
+        const saved = localStorage.getItem(KEY);
+        if (saved) {
+            area.value = saved;
+            autosize(area);
+            updateMeta();
+        }
+
+        // events
+        area.addEventListener('input', () => {
+            autosize(area);
+            updateMeta();
+        });
+
+        document.getElementById('save').addEventListener('click', () => {
+            localStorage.setItem(KEY, area.value);
+            alert('Salvato localmente');
+        });
+
+        document.getElementById('clear').addEventListener('click', () => {
+            if (confirm('Vuoi cancellare il contenuto?')) {
+                area.value = '';
+                autosize(area);
+                updateMeta();
+                localStorage.removeItem(KEY);
+            }
+        });
+
+        document.getElementById('download').addEventListener('click', () => {
+            const blob = new Blob([area.value], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'text.txt';
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(url);
+            a.remove();
+        });
+
+        // initialize
+        autosize(area);
+        updateMeta();
+
+        document.getElementById('parse').addEventListener('click', () => {
+            const txt = document.getElementById('multi').value;
+            console.log("TXT", txt);
+
+            const obj = JSON.parse(txt);
+            console.log("OBJ", obj);
+
+            const s = formatObjectAsJsonHtml('result', obj);
+            //console.log("OUT:", s);
+            //document.getElementById('result').innerHTML = s;
+        });
+
+    </script>
+    <script src="./format-json-to-tree.js"></script>
+</body>
+
+</html>
