@@ -3,7 +3,7 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-11";
+    const VERSION = "1.2025-11-15";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -21,6 +21,7 @@
 
     const HTML_ID_OUTPUT_RAW = "sgart-output-raw";
     const HTML_ID_OUTPUT_SIMPLE = "sgart-output-simple";
+    const HTML_ID_OUTPUT_TREE = "sgart-output-tree";
     const HTML_ID_OUTPUT_TABLE = "sgart-output-table";
 
     const HTML_ID_BTN_EXECUTE = "sgart-btn-execute";
@@ -29,12 +30,14 @@
 
     const HTML_ID_TAB_RAW = "sgart-tab-response-raw";
     const HTML_ID_TAB_SIMPLE = "sgart-tab-response-simple";
+    const HTML_ID_TAB_TREE = "sgart-tab-response-tree";
     const HTML_ID_TAB_TABLE = "sgart-tab-response-table";
 
     const TAB_KEY_RAW = 'raw';
-    const TAB_KEY_SIMPLE = 'symple';
+    const TAB_KEY_SIMPLE = 'simple';
+    const TAB_KEY_TREE = 'tree';
     const TAB_KEY_TABLE = 'table';
-    let currentTab = TAB_KEY_SIMPLE;
+    let currentTab = TAB_KEY_RAW;
     let serverRelativeUrlPrefix = "/";
 
     const EXAMPLES = {
@@ -395,8 +398,6 @@
         }
     };
 
-
-
     // encode dei caratteri in html
     String.prototype.htmlEncode = function () {
         const node = document.createTextNode(this);
@@ -442,6 +443,92 @@
         return response;
     };
 
+    const formatObjectAsHtmlTree = (objJson, idContainer, options) => {
+        const BASE = "sgart-it-format-json-to-tree";
+        const SVG_ADD = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M2048 960v128h-960v960H960v-960H0V960h960V0h128v960h960z"></path></svg>`;
+        const SVG_SUB = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M0 960h2048v128H0V960z"></path></svg>`
+
+        const getSequence = () => "id" + Math.random().toString(16).slice(2);
+        const htmlEscape = (str) => (str ?? "").toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+
+        const injectStyle = () => {
+            const color = options || {};
+            const css = `
+        .${BASE} { 
+            --${BASE}-prop: ${color.cProp ?? "#0451a5"};
+            --${BASE}-sep: ${color.cSep ?? "#444"};
+            --${BASE}-string: ${color.cString ?? "#a31515"};
+            --${BASE}-number: ${color.cNumber ?? "#098658"};
+            --${BASE}-boolean: ${color.cBoolean ?? "#0000ff"};
+            --${BASE}-type: ${color.cType ?? "#666"};
+            --${BASE}-btn: ${color.cBtn ?? "#222"};
+        }
+        .${BASE}, .${BASE} * { font-family: consolas, menlo, monaco, "Ubuntu Mono", source-code-pro, monospace; font-size: .9rem; }
+        .${BASE} var, .${BASE} i, .${BASE} em { font-style: italic; text-decoration: none; font-weight: normal; color: var(--${BASE}-type); }
+        .${BASE} i { padding: 0 5px 0 0; font-style: normal;  color: var(--${BASE}-sep);}
+        .${BASE} label { display: inline; font-style: normal; text-decoration: none; font-weight: bold; padding: 0; }
+        .${BASE} .button { display: inline-flex; justify-content: center; align-items: center; width: 24px; height: 24px; padding: 0; margin: 0 5px 0 0; border-radius: 0; border: 1px solid var(--${BASE}-btn); color: var(--${BASE}-btn); background-color: transparent; overflow: hidden; font-size: 1rem;}
+        .${BASE} .button svg { width: 11px; height: 11px; pointer-events: none; fill: var(--${BASE}-btn);}
+        .${BASE} ul { list-style: none; }
+        .${BASE} ul li { min-height: 30px; line-height: 30px; vertical-align: middle; }
+        .${BASE} label { color: var(--${BASE}-prop); }
+        .${BASE} .key-value-boolean span, .${BASE} .key-value-null span, .${BASE} .key-value-undefined span { color: var(--${BASE}-boolean); }
+        .${BASE} .key-value-string span { color: var(--${BASE}-string); }
+        .${BASE} .key-value-number span { color: var(--${BASE}-number); }            
+        `;
+            const className = `${BASE}-inject-styles`;
+            const stylePrev = document.head.getElementsByClassName(className)[0];
+            if (stylePrev) {
+                document.head.removeChild(stylePrev);
+            }
+            const style = document.createElement('style');
+            style.className = className;
+            style.appendChild(document.createTextNode(css));
+            document.head.appendChild(style);
+        };
+
+        const getType = (value) => value === null ? "null" : Array.isArray(value) ? "array" : typeof value;
+
+        const formatObject = (obj, level) => {
+            const objectName = Array.isArray(obj) ? "array" : "object";
+            const items = Object.entries(obj);
+            const s = items.reduce((accumulator, current) => {
+                const [key, value] = current;
+                const type = getType(value);
+                if (type === "array" || type === "object")
+                    return accumulator + `<li class="key-value-${type}" title="${type}"><label>${key}</label><i>:</i>${formatObject(value, level + 1)}</li>`;
+
+                const str = htmlEscape(value);
+                const strTitle = `${key} : ${type} = ${type === "string" ? `&quot;${str}&quot; {${str.length}}` : str}`;
+                return accumulator + `<li class="key-value-${type}" title="${strTitle}"><label>${key}</label><i>:</i><span>${str}</span></li>`;
+            }, "");
+            const id = `${BASE}-${level}-${getSequence()}`;
+            return `<button class="button" type="button" aria-expanded="true" aria-controls="${id}">${SVG_SUB}</button><em>${objectName}</em> <var>{${items.length}}</var><ul id="${id}">${s}</ul>`;
+        };
+
+        const format = (obj) => obj === null ? "null" : typeof obj === 'object' ? formatObject(obj, 0) : "Unsupported data type";
+
+        const handleClick = (event) => {
+            const btn = event.target;
+            const ctrlId = btn.getAttribute("aria-controls");
+            const control = document.getElementById(ctrlId);
+            const isShow = control.style.display === "";
+            control.style.display = isShow ? "none" : "";
+            btn.setAttribute("aria-expanded", !isShow);
+            btn.innerHTML = isShow ? SVG_ADD : SVG_SUB;
+        };
+
+        injectStyle();
+
+        const str = `<section id="${BASE}" class="${BASE}">${format(objJson)}</section>`;
+        if (idContainer) {
+            const htmlContainer = document.getElementById(idContainer);
+            htmlContainer.innerHTML = str;
+            const htmlContaner = document.getElementById(BASE);
+            htmlContaner.addEventListener("click", handleClick);
+        }
+        return str;
+    };
 
     const htmlTableFromJson = (function () {
         const buildTableItem = (item) => {
@@ -566,7 +653,7 @@
         return q;
     }
 
-    const BASE_CLASS = "sgart-it-sp-api-demo-wrapper-1sdfy23";
+    const BASE = "sgart-it-sp-api-demo-wrapper-1sdfy23";
     function injectStyle() {
         const css = `
             :root{
@@ -581,7 +668,7 @@
             --sgart-btn-color-execute: #f0ad4e;
             --sgart-btn-color-execute-border: #aa6708;
             }
-            .${BASE_CLASS} {
+            .${BASE} {
                 font-family: Arial, sans-serif;
                 font-size: 14px;
                 font-weight: normal;
@@ -601,7 +688,7 @@
                 z-index: 10000;
                 box-sizing: border-box;
             }   
-            .${BASE_CLASS} input, .${BASE_CLASS} textarea, .${BASE_CLASS} select, .${BASE_CLASS} .sgart-button {
+            .${BASE} input, .${BASE} textarea, .${BASE} select, .${BASE} .sgart-button {
                 height: 32px;
                 padding: 0 10px;
                 border: 1px solid var(--sgart-primary-color);
@@ -610,14 +697,14 @@
                 background-image: none;
                 border-radius: 2px;
             }
-            .${BASE_CLASS} select { width: 180px; }
-            .${BASE_CLASS} #sgart-api-demo { width: 200px; }
-            .${BASE_CLASS} .sgart-button  {
+            .${BASE} select { width: 180px; }
+            .${BASE} #sgart-api-demo { width: 200px; }
+            .${BASE} .sgart-button  {
                 background-color: var(--sgart-primary-color);
                 color: var(--sgart-secondary-color-white);
                 padding: 0 10px;
                 cursor: pointer;
-                width: 120px;
+                width: 110px;
                 overflow: hidden;
                 white-space: nowrap;
                 display: flex;
@@ -625,18 +712,19 @@
                 justify-content: center;
                 gap: 5px;
             }
-            .${BASE_CLASS} .sgart-button svg { color: var(--sgart-secondary-color-white); fill: var(--sgart-secondary-color-white); height: 20px; width: 20px; }
-            .${BASE_CLASS} .sgart-button.sgart-button-tab { background-color: var(--sgart-primary-color-light); color: var(--sgart-secondary-color); }
-            .${BASE_CLASS} .sgart-button.selected, .${BASE_CLASS} .sgart-button:hover, .${BASE_CLASS} .sgart-button.sgart-button-tab.selected, .${BASE_CLASS} .sgart-button.sgart-button-tab:hover {
+            .${BASE} .sgart-button svg { color: var(--sgart-secondary-color-white); fill: var(--sgart-secondary-color-white); height: 20px; width: 20px; }
+            .${BASE} .sgart-button.sgart-button-tab { background-color: var(--sgart-primary-color-light); color: var(--sgart-secondary-color); }
+            .${BASE} .sgart-button.selected, .${BASE} .sgart-button:hover, .${BASE} .sgart-button.sgart-button-tab.selected, .${BASE} .sgart-button.sgart-button-tab:hover {
                 background-color: var(--sgart-primary-color-hover);
                 color: var(--sgart-secondary-color-white);
                 font-weight: bold;
             }
             #${HTML_ID_BTN_EXECUTE} { background-color: var(--sgart-btn-color-execute); border: 1px solid var(--sgart-btn-color-execute-border); color: var(--sgart-secondary-color-dark)}
             #${HTML_ID_BTN_EXECUTE} svg { fill: var(--sgart-secondary-color-dark);}
-            .${BASE_CLASS} .sgart-button.sgart-button-tab:hover { border-color: var(--sgart-secondary-color); }
-            .${BASE_CLASS} .sgart-separator { margin: 0; }
-            .${BASE_CLASS} .sgart-header {
+            .${BASE} .sgart-button.sgart-button-tab { width: 70px }
+            .${BASE} .sgart-button.sgart-button-tab:hover { border-color: var(--sgart-secondary-color); }
+            .${BASE} .sgart-separator { margin: 0; }
+            .${BASE} .sgart-header {
                 position: relative;
                 background-color: var(--sgart-secondary-color);  
                 color: var(--sgart-secondary-color-white);
@@ -648,19 +736,19 @@
                 align-items: center;
                 justify-content: space-between;
             }     
-            .${BASE_CLASS} .sgart-header h1 { font-size: 1.2em; font-weight: bold; margin: 0; }  
-            .${BASE_CLASS} .sgart-header .sgart-button { background-color: var(--sgart-secondary-color); border: 1px solid var(--sgart-secondary-color); color: var(--sgart-secondary-color-white); padding: 5px 10px; width: 80px; }
-            .${BASE_CLASS} .sgart-header .sgart-button:hover { border: 1px solid var(--sgart-secondary-color-white); font-weight: normal; }
-            .${BASE_CLASS} .sgart-header .logo { height: 33px; margin-right: 10px; }
-            .${BASE_CLASS} .sgart-toolbar { display:flex; flex-direction: row; align-items: center; justify-content: space-between; }
-            .${BASE_CLASS} .sgart-toolbar-left { display: flex; gap: 10px; justify-content: left; align-items: center; flex-wrap: wrap; }
-            .${BASE_CLASS} .sgart-toolbar-right{ justify-content: right; }
-            .${BASE_CLASS} .sgart-body { display: flex; flex-direction: column; flex-grow: 1; padding: 10px; gap: 10px; font-weight: normal; }
-            .${BASE_CLASS} .sgart-body label { font-weight: normal; padding: 0; text-wrap-mode: nowrap; }   
-            .${BASE_CLASS} .sgart-input-area { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-            .${BASE_CLASS} .sgart-input { flex-grow: 1; }
-            .${BASE_CLASS} .sgart-output-area { flex-grow: 1; display: flex; overflow: hidden; position: relative; }
-            .${BASE_CLASS} .sgart-output-area > div {
+            .${BASE} .sgart-header h1 { font-size: 1.2em; font-weight: bold; margin: 0; }  
+            .${BASE} .sgart-header .sgart-button { background-color: var(--sgart-secondary-color); border: 1px solid var(--sgart-secondary-color); color: var(--sgart-secondary-color-white); padding: 5px 10px; width: 80px; }
+            .${BASE} .sgart-header .sgart-button:hover { border: 1px solid var(--sgart-secondary-color-white); font-weight: normal; }
+            .${BASE} .sgart-header .logo { height: 33px; margin-right: 10px; }
+            .${BASE} .sgart-toolbar { display:flex; flex-direction: row; align-items: center; justify-content: space-between; }
+            .${BASE} .sgart-toolbar-left { display: flex; gap: 10px; justify-content: left; align-items: center; flex-wrap: wrap; }
+            .${BASE} .sgart-toolbar-right{ justify-content: right; }
+            .${BASE} .sgart-body { display: flex; flex-direction: column; flex-grow: 1; padding: 10px; gap: 10px; font-weight: normal; }
+            .${BASE} .sgart-body label { font-weight: normal; padding: 0; text-wrap-mode: nowrap; }   
+            .${BASE} .sgart-input-area { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+            .${BASE} .sgart-input { flex-grow: 1; }
+            .${BASE} .sgart-output-area { flex-grow: 1; display: flex; overflow: hidden; position: relative; }
+            .${BASE} .sgart-output-area > div {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -673,8 +761,9 @@
                 border: 1px solid var(--sgart-primary-color);
                 background-color: var(--sgart-secondary-color-white);
             }
-            .${BASE_CLASS} .sgart-output-area table { border-collapse: collapse; width: 100%; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color-dark);}
-            .${BASE_CLASS} .sgart-output-txt, .${BASE_CLASS} .sgart-output-table {
+            .${BASE} .sgart-output-area .sgart-output-tree { padding: .5em; }
+            .${BASE} .sgart-output-area table { border-collapse: collapse; width: 100%; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color-dark);}
+            .${BASE} .sgart-output-txt, .${BASE} .sgart-output-table {
                 width: 100%;    
                 height: auto;
                 flex-grow: 1;
@@ -685,7 +774,7 @@
                 box-sizing: border-box;
                 border: none;
             }
-            .${BASE_CLASS} table th {
+            .${BASE} table th {
                 background-color: var(--sgart-primary-color);
                 color: var(--sgart-secondary-color-white);
                 text-align: left;
@@ -694,14 +783,14 @@
                 z-index: 1000;
                 padding: 5px;
             }
-            .${BASE_CLASS} .sgart-http-status { border: 1px solid var(--sgart-secondary-color); padding: 0; background-color: var(--sgart-secondary-color-gray-light); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
-            .${BASE_CLASS} .sgart-http-status-100 { background-color: #e7f3fe; color: #31708f; border-color: #bce8f1; }  
-            .${BASE_CLASS} .sgart-http-status-200 { background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6; }
-            .${BASE_CLASS} .sgart-http-status-300 { background-color: #fcf8e3; color: #8a6d3b; border-color: #faebcc; }
-            .${BASE_CLASS} .sgart-http-status-400 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }
-            .${BASE_CLASS} .sgart-http-status-500 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }   
-            .${BASE_CLASS} .sgart-label-count { border: 1px solid var(--sgart-secondary-color-gray-light); padding: 0; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 70px; height: 32px; align-items: center; justify-content: center; }
-            .${BASE_CLASS} .sgart-popup {
+            .${BASE} .sgart-http-status { border: 1px solid var(--sgart-secondary-color); padding: 0; background-color: var(--sgart-secondary-color-gray-light); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
+            .${BASE} .sgart-http-status-100 { background-color: #e7f3fe; color: #31708f; border-color: #bce8f1; }  
+            .${BASE} .sgart-http-status-200 { background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6; }
+            .${BASE} .sgart-http-status-300 { background-color: #fcf8e3; color: #8a6d3b; border-color: #faebcc; }
+            .${BASE} .sgart-http-status-400 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }
+            .${BASE} .sgart-http-status-500 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }   
+            .${BASE} .sgart-label-count { border: 1px solid var(--sgart-secondary-color-gray-light); padding: 0; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
+            .${BASE} .sgart-popup {
                 position: fixed;
                 display: none;   /*flex;*/
                 top: 0;
@@ -712,7 +801,7 @@
                 z-index: 10001;
                 padding: 40px 20px 20px 20px;
             }
-            .${BASE_CLASS} .sgart-popup .sgart-popup-wrapper {
+            .${BASE} .sgart-popup .sgart-popup-wrapper {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
@@ -721,7 +810,7 @@
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
                 z-index: 10002;
             }
-            .${BASE_CLASS} .sgart-popup .sgart-pupup-header {
+            .${BASE} .sgart-popup .sgart-pupup-header {
                 display: flex;
                 flex-direction: row;
                 justify-content: space-between;
@@ -732,7 +821,7 @@
                 background-color: var(--sgart-primary-color);
                 color: var(--sgart-secondary-color-white);
             }
-            .${BASE_CLASS} .sgart-popup .sgart-popup-body {
+            .${BASE} .sgart-popup .sgart-popup-body {
                 display: flex;
                 flex-direction: column;
                 padding: 10px;
@@ -740,14 +829,14 @@
                 overflow-x: hidden;
                 overflow-y: auto;
             }
-            .${BASE_CLASS} .sgart-popup h3 { margin: 0; font-size: 18px;}
-            .${BASE_CLASS} .sgart-popup .sgart-popup-group { display: flex; flex-direction: column; padding: 10px;height: 100%; }
-            .${BASE_CLASS} .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: space-between; padding: 10px; height: 100%; flex-wrap: wrap; }
-            .${BASE_CLASS} .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 49%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
-            .${BASE_CLASS} .sgart-popup .sgart-popup-action h4 { margin: 0 0 8px 0; font-size: 16px;}
-            .${BASE_CLASS} .sgart-popup .sgart-popup-action p { word-wrap: break-word; margin: 8px 0;}
-            .${BASE_CLASS} .sgart-popup .sgart-popup-history li { display: flex; flex-direction: row; align-items: center; margin: 5px 0; gap: 10px; justify-content: space-between;}
-            .${BASE_CLASS} .sgart-popup .sgart-popup-history button { flex: auto;}
+            .${BASE} .sgart-popup h3 { margin: 0; font-size: 18px;}
+            .${BASE} .sgart-popup .sgart-popup-group { display: flex; flex-direction: column; padding: 10px;height: 100%; }
+            .${BASE} .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: space-between; padding: 10px; height: 100%; flex-wrap: wrap; }
+            .${BASE} .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 49%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
+            .${BASE} .sgart-popup .sgart-popup-action h4 { margin: 0 0 8px 0; font-size: 16px;}
+            .${BASE} .sgart-popup .sgart-popup-action p { word-wrap: break-word; margin: 8px 0;}
+            .${BASE} .sgart-popup .sgart-popup-history li { display: flex; flex-direction: row; align-items: center; margin: 5px 0; gap: 10px; justify-content: space-between;}
+            .${BASE} .sgart-popup .sgart-popup-history button { flex: auto;}
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
         if (stylePrev) {
@@ -767,7 +856,7 @@
         }
         const interfaceDiv = document.createElement('div');
         interfaceDiv.id = HTML_ID_WRAPPER;
-        interfaceDiv.className = BASE_CLASS;
+        interfaceDiv.className = BASE;
         interfaceDiv.innerHTML = `
             <div class="sgart-header">
                 <a href="https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post" target="_blank"><img alt="Logo Sgart.it" class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAAAhCAYAAADZEklWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC42/Ixj3wAAAvtJREFUeF7tki2WFTEQhUvh2AAOxwZwODbAClCsAMcCUDjUbACFQ7EBHAqFYwMoHKpI9ZycE+rdVCXpSvebmYhv0qn7U336DfFf4kNglj+LewjxHzmxGMYROxanQfxbTiyGccSOxWkQ/5ITi5vWA+oQLG1x5yH+KScWTU0T1bOIR74/AnkHIP4hJxZNTRPVs4gHff/A34T4u5xYNDWNeC1QZvE/6LsJyNsD6vB6y/0lwEv8DQsblraIB33viN9AOhDIm0F6JUP8FQsblraIB33vs36Djnch/oKFDUtbxIO+91m/Qce7EH/GwoZoUazeW7zeUq95BO2zQHnB85R6zZMg/pQetDkavSNq50Pt7c0hf+C7jId7iHphzUPt7c0hf+C7EN/IsxKi0TvQTpl5oIx1zzMPlLHueeaBMvquKfWaR9A+C+TXs7I7U+o1T4L4Y3qIQi/NaA15rbzQkpE7ovRokK5nLR7NUZkWJr/LxWCYD3KAuaA15LXywkimhZbekd2iI5A3g3Qv08JIb0fmYjDMeznAXNAa8lp5YSTTQkvvrN2aWXtGejsyF4Nh3skB5oLWkNfKCy0ZuY9QduQe616b7WXWnpHejgzx23RagBDE8moNeb1dLRmvo5WW3qhdJbP2jPR2ZIjfYGHD0jQ9Pcjr7WrJ1DweKGPda7O9zNoz0tuRIX6NhQ1L0/T0IK+3qyVzTb0jzNoz0tuRsctE6wF1CFpDXisvtGSuqXeEWXtGejsyxK+wEIregXbKzANlrHueeaCMda/N9lLbg/A8Wi/vtVlJLQMgfpketDkavSNq55m9UbtKWju99/PutVmJp2eSr928B70jaueZvVG7Slo7vffz7rVZiadnko/4RXo+gnIx0lsoO3KPvkfR0lt6IkA7ang5TxdKjwb5K6S/d4TncjTMFocDh1fJMzkaZovDgcPpPE0HAnkzSPcyi0OAw+k8kQPMPFBGzxaHA4fTeSwHmPcS1bPYBRxOZ/0T3SvgcDqP0hEF6l8cCNM/xi1s5uHihBcAAAAASUVORK5CYII="></a>
@@ -793,6 +882,7 @@
                         <label>Output:</label>
 						<button id="${HTML_ID_TAB_RAW}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_RAW}" data-tab-control-id="${HTML_ID_OUTPUT_RAW}" title="API Response">RAW</button>
 						<button id="${HTML_ID_TAB_SIMPLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_SIMPLE}" data-tab-control-id="${HTML_ID_OUTPUT_SIMPLE}" title="Response with 'value' or 'd' property removed">Simple</button>
+						<button id="${HTML_ID_TAB_TREE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TREE}" data-tab-control-id="${HTML_ID_OUTPUT_TREE}" title="Response formatted as tree">Tree</button>
 						<button id="${HTML_ID_TAB_TABLE}" class="sgart-button sgart-button-tab" data-tab="${TAB_KEY_TABLE}" data-tab-control-id="${HTML_ID_OUTPUT_TABLE}" title="Response formatted as table (beta)">Table</button>
                         <span class="sgart-separator">|</span>
                         <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 0v1792H256V0h1536zm-128 128H384v1536h1280V128zM640 896H512V768h128v128zm896 0H768V768h768v128zm-896 384H512v-128h128v128zm896 0H768v-128h768v128zM640 512H512V384h128v128zm896 0H768V384h768v128z"></path></svg><span>Examples</span></button>
@@ -800,14 +890,14 @@
                         <span class="sgart-separator">|</span>
                         <span><label>Status:</label> <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span></span>
                         <span title="Response items count"><label>Count:</label> <strong id="${HTML_ID_LBL_COUNT}" class="sgart-label-count"></strong></span>
-
-					</div>
+    				</div>
 					<div class="sgart-toolbar-right"><small>v. ${VERSION}</small></div>
                 </div>
                 <div class="sgart-output-area">
                     <div>
                         <textarea id="${HTML_ID_OUTPUT_RAW}" class="sgart-output-txt"></textarea>
                         <textarea id="${HTML_ID_OUTPUT_SIMPLE}" class="sgart-output-txt"></textarea>
+                        <div id="${HTML_ID_OUTPUT_TREE}" class="sgart-output-tree"></div>
                         <div id="${HTML_ID_OUTPUT_TABLE}" class="sgart-output-table"></div>
                     </div>
                 </div>
@@ -1022,10 +1112,13 @@
 
         const outputRaw = document.getElementById(HTML_ID_OUTPUT_RAW);
         const outputPretty = document.getElementById(HTML_ID_OUTPUT_SIMPLE);
+        const outputTree = document.getElementById(HTML_ID_OUTPUT_TREE);
         const outputTable = document.getElementById(HTML_ID_OUTPUT_TABLE);
+
         const waitTxt = "Executing...";
         outputRaw.value = waitTxt;
         outputPretty.value = waitTxt;
+        outputTree.value = waitTxt;
         outputTable.innerHTML = waitTxt;
 
         const modeVerbose = document.getElementById(HTML_ID_SELECT_ODATA).value === 'verbose';
@@ -1055,6 +1148,8 @@
 
             document.getElementById(HTML_ID_LBL_COUNT).innerText = Array.isArray(simplified) ? simplified.length : "1";
 
+            formatObjectAsHtmlTree(data, outputTree.id);
+
             const tableHtml = htmlTableFromJson.buid(data);
             outputTable.innerHTML = tableHtml;
 
@@ -1065,6 +1160,7 @@
             const msg = "Error: " + error.message;
             outputRaw.value = msg;
             outputPretty.value = msg;
+            outputTree.value = msg;
             outputTable.value = msg;
         });
     }
@@ -1097,7 +1193,6 @@
         console.log("Interface closed");
     }
 
-
     function addEvents() {
         const btnExecute = document.getElementById(HTML_ID_BTN_EXECUTE);
         btnExecute.addEventListener("click", handleExecuteClickEvent);
@@ -1111,15 +1206,23 @@
         document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).addEventListener("click", () => {
             document.getElementById(HTML_ID_OUTPUT_RAW).value = "";
             document.getElementById(HTML_ID_OUTPUT_SIMPLE).value = "";
+            document.getElementById(HTML_ID_OUTPUT_TREE).value = "";
             document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML = "";
         });
         document.getElementById(HTML_ID_BTN_COPY_OUTPUT).addEventListener("click", () => {
-            if (currentTab === TAB_KEY_TABLE) {
-                copyToClipboard(document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML);
-            } else if (currentTab === TAB_KEY_SIMPLE) {
-                copyToClipboard(document.getElementById(HTML_ID_OUTPUT_SIMPLE).innerHTML);
-            } else {
-                copyToClipboard(document.getElementById(HTML_ID_OUTPUT_SIMPLE).value);
+            switch (currentTab) {
+                case TAB_KEY_TABLE:
+                    copyToClipboard(document.getElementById(HTML_ID_OUTPUT_TABLE).innerHTML);
+                    break;
+                case TAB_KEY_SIMPLE:
+                    copyToClipboard(document.getElementById(HTML_ID_OUTPUT_SIMPLE).innerHTML);
+                    break;
+                case TAB_KEY_TREE:
+                    copyToClipboard(document.getElementById(HTML_ID_OUTPUT_TREE).innerHTML);
+                    break;
+                default:
+                    copyToClipboard(document.getElementById(HTML_ID_OUTPUT_RAW).value);
+                    break;
             }
         });
 
