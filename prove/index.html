@@ -72,89 +72,6 @@
             color: #6b7280;
             font-size: 13px
         }
-
-        :root {
-            --sgart-it-format-json-to-tree-prop: #0451a5;
-            --sgart-it-format-json-to-tree-string: #a31515;
-            --sgart-it-format-json-to-tree-number: #098658;
-            --sgart-it-format-json-to-tree-boolean: #0000ff;
-            --sgart-it-format-json-to-tree-type: #666;
-            --sgart-it-format-json-to-tree-btn: #222;
-        }
-
-        .sgart-it-format-json-to-tree, .sgart-it-format-json-to-tree * {
-            font-family: consolas, menlo, monaco, "Ubuntu Mono", source-code-pro, monospace;
-            font-size: 14px;
-        }
-
-        .sgart-it-format-json-to-tree var,
-        .sgart-it-format-json-to-tree i,
-        .sgart-it-format-json-to-tree em {
-            font-style: italic;
-            text-decoration: none;
-            font-weight: normal;
-            color: var(--sgart-it-format-json-to-tree-type);
-        }
-
-        .sgart-it-format-json-to-tree i {
-            padding: 0 5px 0 0;
-        }
-
-        .sgart-it-format-json-to-tree label {
-            display: inline;
-            font-style: normal;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 0;
-        }
-
-        .sgart-it-format-json-to-tree .button {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 24px;
-            height: 24px;
-            padding: 0;
-            margin: 0 5px 0 0;
-            border-radius: 0;
-            border: 1px solid var(--sgart-it-format-json-to-tree-btn);
-            color: var(--sgart-it-format-json-to-tree-btn);
-            background-color: transparent;
-            overflow: hidden;
-            font-size: 17px;
-        }
-        .sgart-it-format-json-to-tree .button svg{
-            width: 11px;
-            height: 11px;
-             pointer-events: none;
-        }
-        .sgart-it-format-json-to-tree ul {
-            list-style: none;
-        }
-
-        .sgart-it-format-json-to-tree ul li {
-            min-height: 30px;
-            line-height: 30px;
-            vertical-align: middle;
-        }
-
-        .sgart-it-format-json-to-tree label {
-            color: var(--sgart-it-format-json-to-tree-prop);
-        }
-
-        .sgart-it-format-json-to-tree .key-value-boolean span,
-        .sgart-it-format-json-to-tree .key-value-null span,
-        .sgart-it-format-json-to-tree .key-value-undefined span {
-            color: var(--sgart-it-format-json-to-tree-boolean);
-        }
-
-        .sgart-it-format-json-to-tree .key-value-string span {
-            color: var(--sgart-it-format-json-to-tree-string);
-        }
-
-        .sgart-it-format-json-to-tree .key-value-number span {
-            color: var(--sgart-it-format-json-to-tree-number);
-        }
     </style>
 </head>
 
@@ -265,7 +182,7 @@
             const obj = JSON.parse(txt);
             console.log("OBJ", obj);
 
-            const s = formatObjectAsJsonHtml('result', obj);
+            const s = formatObjectAsHtmlTree(obj, 'result');
             //console.log("OUT:", s);
             //document.getElementById('result').innerHTML = s;
         });
