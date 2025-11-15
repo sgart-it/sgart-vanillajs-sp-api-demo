@@ -3,7 +3,7 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-15";
+    const VERSION = "1.2025-11-15.a";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -1106,7 +1106,66 @@
         }
     }
 
+    let cacheResponse = {
+        data: null,
+        loaded: {
+            raw: false,
+            tree: false,
+            table: false,
+            simple: false
+        }
+    };
+
+    function renderContent() {
+        const { data, loaded } = cacheResponse;
+        if (data !== null) {
+
+            if (loaded.simple == false) {
+                const outputPretty = document.getElementById(HTML_ID_OUTPUT_SIMPLE);
+                const simplified = simplifyObjectOrArray(data);
+                outputPretty.value = JSON.stringify(simplified, null, 2);
+                document.getElementById(HTML_ID_LBL_COUNT).innerText = Array.isArray(simplified) ? simplified.length : "1";
+                loaded.simple = true;
+            }
+
+            switch (currentTab) {
+                case TAB_KEY_RAW:
+                    if (loaded.raw === false) {
+                        const outputRaw = document.getElementById(HTML_ID_OUTPUT_RAW);
+                        outputRaw.value = JSON.stringify(data, null, 2);
+                        loaded.raw = true;
+                    }
+                    break;
+                case TAB_KEY_TREE:
+                    if (loaded.tree === false) {
+                        const outputTree = document.getElementById(HTML_ID_OUTPUT_TREE);
+                        formatObjectAsHtmlTree(data, outputTree.id);
+                        loaded.tree = true;
+                    }
+                    break;
+                case TAB_KEY_TABLE:
+                    if (loaded.table === false) {
+                        const outputTable = document.getElementById(HTML_ID_OUTPUT_TABLE);
+                        const tableHtml = htmlTableFromJson.buid(data);
+                        outputTable.innerHTML = tableHtml;
+                        loaded.table = true;
+                    }
+                    break;
+            }
+        }
+    }
+
     function handleExecuteClickEvent() {
+        cacheResponse = {
+            data: null,
+            loaded: {
+                raw: false,
+                tree: false,
+                table: false,
+                simple: false
+            }
+        };
+
         const input = document.getElementById(HTML_ID_TXT_INPUT).value;
 
         const outputRaw = document.getElementById(HTML_ID_OUTPUT_RAW);
@@ -1120,47 +1179,36 @@
         outputTree.value = waitTxt;
         outputTable.innerHTML = waitTxt;
 
+        const elmStatus = document.getElementById(HTML_ID_HTTP_STATUS);
+        elmStatus.innerText = "...";
+
+        document.getElementById(HTML_ID_LBL_COUNT).innerText = "-";
+
         const modeVerbose = document.getElementById(HTML_ID_SELECT_ODATA).value === 'verbose';
 
         fetchGetJson(input, modeVerbose).then(response => {
-            const statusTxt = response.status;
-            let statusGroup = statusTxt >= 500
-                ? "500"
-                : statusTxt >= 400
-                    ? "400"
-                    : statusTxt >= 300
-                        ? "300"
-                        : statusTxt >= 200
-                            ? "200"
-                            : statusTxt >= 100
-                                ? "100"
-                                : "000";
+            cacheResponse.data = response.data;
+            const statusGroup = parseInt(response.status / 100).toString() + "00";
             const elmStatus = document.getElementById(HTML_ID_HTTP_STATUS);
-            elmStatus.innerText = statusTxt;
+            elmStatus.innerText = response.status;
             elmStatus.className = `sgart-http-status sgart-http-status-${statusGroup}`;
 
-            const data = response.data;
-            outputRaw.value = JSON.stringify(data, null, 2);
+            outputRaw.value = "";
+            outputPretty.value = "";
+            outputTree.innerText = "";
+            outputTable.innerText = "";
 
-            const simplified = simplifyObjectOrArray(data);
-            outputPretty.value = JSON.stringify(simplified, null, 2);
-
-            document.getElementById(HTML_ID_LBL_COUNT).innerText = Array.isArray(simplified) ? simplified.length : "1";
-
-            formatObjectAsHtmlTree(data, outputTree.id);
-
-            const tableHtml = htmlTableFromJson.buid(data);
-            outputTable.innerHTML = tableHtml;
-
-            // add to history
             history.add(input, modeVerbose);
+
+            renderContent();
         }).catch(error => {
+            cacheResponse.data = null;
             console.error("Error executing API request:", error);
             const msg = "Error: " + error.message;
             outputRaw.value = msg;
             outputPretty.value = msg;
-            outputTree.value = msg;
-            outputTable.value = msg;
+            outputTree.innerText = msg;
+            outputTable.innerText = msg;
         });
     }
 
@@ -1180,6 +1228,7 @@
                 controlElem.style.display = 'none';
             }
         });
+        renderContent();
     }
 
     function handleExitClickEvent() {
