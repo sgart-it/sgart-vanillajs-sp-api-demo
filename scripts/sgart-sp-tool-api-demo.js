@@ -3,7 +3,7 @@
         SharePoint Tool Api Demo (Sgart.it)
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-15.a";
+    const VERSION = "1.2025-11-16";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -143,6 +143,18 @@
                         description: "Retrieve lists in the web with selected fields and ordering."
                     },
                     {
+                        id: "getListsExpand",
+                        title: "Get lists expand user",
+                        url: "web/lists?$select=Title&$expand=Author&$top=100&$orderBy=Title",
+                        description: "Retrieve lists in the web with Author user expanded."
+                    }, 
+                    {
+                        id: "getListsExpand2",
+                        title: "Get lists expand user some field",
+                        url: "web/lists?$select=Title,Author/UserPrincipalName,Author/Email&$expand=Author&$top=100&$orderBy=Title",
+                        description: "Retrieve lists in the web with Author user expanded some field."
+                    },                    
+                    {
                         id: "getListByGuid",
                         title: "Get list by guid",
                         url: "web/lists(guid'00000000-0000-0000-0000-000000000000')",
@@ -277,12 +289,7 @@
                     {
                         id: "searchSites",
                         title: "Search sites",
-                        url: "search/query",
-                        query: {
-                            mode: "search",
-                            filter: "sharepoint (contentclass:STS_Site) Path:\"https://sgart.sharepoint.com/*\"",
-                            select: "Title,Path,Description,SiteLogo,WebTemplate,WebId,SiteId,Created,LastModifiedTime"
-                        },
+                        url: "search/query?querytext='sharepoint (contentclass:STS_Site) Path:\"https://tenantName.sharepoint.com/*\"'&SelectProperties='Title,Path,Description,SiteLogo,WebTemplate,WebId,SiteId,Created,LastModifiedTime'",
                         description: "Perform a query-based search for sites; includes a query object with mode, filter and selected fields."
                     }
                 ]
@@ -300,19 +307,13 @@
                     {
                         id: "getPMFollowedByMe",
                         title: "Followed by ME",
-                        url: "SP.UserProfiles.PeopleManager/getpeoplefollowedbyme",
-                        query: {
-                            select: "*"
-                        },
+                        url: "SP.UserProfiles.PeopleManager/getpeoplefollowedbyme?$select=*",
                         description: "Get people followed by the current user; may accept select options."
                     },
                     {
                         id: "getPMFollowedBy",
                         title: "Followed by ...",
-                        url: "SP.UserProfiles.PeopleManager/getpeoplefollowedby(@v)?@v='i%3A0%23.f%7Cmembership%7Cuser%40domain.onme",
-                        query: {
-                            select: "*"
-                        },
+                        url: "SP.UserProfiles.PeopleManager/getpeoplefollowedby(@v)?@v='i%3A0%23.f%7Cmembership%7Cuser%40domain.onme?$select=*",
                         description: "Get people followed by a specified user (example includes encoded parameter)."
                     }
                 ]
@@ -467,7 +468,7 @@
         .${BASE} var, .${BASE} i, .${BASE} em { font-style: italic; text-decoration: none; font-weight: normal; color: var(--${BASE}-type); }
         .${BASE} i { padding: 0 5px 0 0; font-style: normal;  color: var(--${BASE}-sep);}
         .${BASE} label { display: inline; font-style: normal; text-decoration: none; font-weight: bold; padding: 0; }
-        .${BASE} .button { display: inline-flex; justify-content: center; align-items: center; width: 24px; height: 24px; padding: 0; margin: 0 5px 0 0; border-radius: 0; border: 1px solid var(--${BASE}-btn); color: var(--${BASE}-btn); background-color: transparent; overflow: hidden; font-size: 1rem;}
+        .${BASE} .button { display: inline-flex; justify-content: center; align-items: center; width: 24px; height: 24px; padding: 0; margin: 0 5px 0 0; border-radius: 0; border: 1px solid var(--${BASE}-btn); color: var(--${BASE}-btn); background-color: transparent; overflow: hidden; font-size: 1rem; cursor: pointer;}
         .${BASE} .button svg { width: 11px; height: 11px; pointer-events: none; fill: var(--${BASE}-btn);}
         .${BASE} ul { list-style: none; }
         .${BASE} ul li { min-height: 30px; line-height: 30px; vertical-align: middle; }
@@ -829,11 +830,12 @@
                 overflow-y: auto;
             }
             .${BASE} .sgart-popup h3 { margin: 0; font-size: 18px;}
-            .${BASE} .sgart-popup .sgart-popup-group { display: flex; flex-direction: column; padding: 10px;height: 100%; }
-            .${BASE} .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: space-between; padding: 10px; height: 100%; flex-wrap: wrap; }
-            .${BASE} .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 49%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
+            .${BASE} .sgart-popup .sgart-popup-group { display: block; padding: 10px; }
+            .${BASE} .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: flex-start; padding: 10px; flex-wrap: wrap; }
+            .${BASE} .sgart-popup .sgart-popup-action { border: 1px solid var(--sgart-primary-color); padding: 10px; margin: 5px; cursor: pointer; width: 32%; overflow: hidden; text-align: left; background-color: var(--sgart-secondary-color-white); }
             .${BASE} .sgart-popup .sgart-popup-action h4 { margin: 0 0 8px 0; font-size: 16px;}
             .${BASE} .sgart-popup .sgart-popup-action p { word-wrap: break-word; margin: 8px 0;}
+            .${BASE} .sgart-popup .sgart-popup-action > div { word-wrap: break-word; margin: 8px 0;}
             .${BASE} .sgart-popup .sgart-popup-history li { display: flex; flex-direction: row; align-items: center; margin: 5px 0; gap: 10px; justify-content: space-between;}
             .${BASE} .sgart-popup .sgart-popup-history button { flex: auto;}
         `;
@@ -1068,12 +1070,11 @@
                     + " title=\"" + url + "\""
                     + "><h4>" + title + "</h4>"
                     + "<p>" + action.description.htmlEncode() + "</p>"
-                    + "<div>Url: " + relativeUrl + "</div>"
+                    + "<div>" + relativeUrl + "</div>"
                     + "</button>";
             });
             html += "</div></div>";
         });
-
         popup.show("Examples and usage", html, handlePopupClickEvent);
     }
 
