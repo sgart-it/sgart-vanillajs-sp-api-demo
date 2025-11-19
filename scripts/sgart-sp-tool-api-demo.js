@@ -2,7 +2,7 @@
     /* 
         SharePoint Tool Api Demo (Sgart.it)
         https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post
-        
+
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
     const VERSION = "1.2025-11-19";
@@ -1244,6 +1244,7 @@
     }
 
     function handleExitClickEvent() {
+        window.removeEventListener("beforeunload", handleBeforeunloadEvent);
         const interfaceDiv = document.getElementById(HTML_ID_WRAPPER);
         document.body.removeChild(interfaceDiv);
         const style = document.head.getElementsByClassName('sgart-inject-style')[0];
@@ -1293,6 +1294,11 @@
         tabs[0].click();
     }
 
+    function handleBeforeunloadEvent(event) {
+        event.preventDefault();
+        console.log("beforeunload", event);
+    }
+
     function init() {
         console.log(`v.${VERSION} - https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post`);
 
@@ -1320,6 +1326,8 @@
         elmTxt.value = serverRelativeUrlPrefix + "_api/web";
         elmTxt.focus();
         handleExecuteClickEvent();
+
+        window.addEventListener("beforeunload", handleBeforeunloadEvent);
     }
 
     init();
