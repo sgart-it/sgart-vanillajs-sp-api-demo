@@ -1,9 +1,11 @@
 (function () {
     /* 
         SharePoint Tool Api Demo (Sgart.it)
+        https://www.sgart.it/IT/informatica/tool-sharepoint-api-demo-vanilla-js/post
+        
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-16";
+    const VERSION = "1.2025-11-19";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -18,6 +20,7 @@
     const HTML_ID_BTN_HISTORY = "sgart-btn-history";
     const HTML_ID_LBL_COUNT = "sgart-label-count";
     const HTML_ID_HTTP_STATUS = "sgart-http-status";
+    const HTML_ID_HTTP_EXECUTION_TIME = "sgart-http-execution-time";
 
     const HTML_ID_OUTPUT_RAW = "sgart-output-raw";
     const HTML_ID_OUTPUT_SIMPLE = "sgart-output-simple";
@@ -147,13 +150,13 @@
                         title: "Get lists expand user",
                         url: "web/lists?$select=Title&$expand=Author&$top=100&$orderBy=Title",
                         description: "Retrieve lists in the web with Author user expanded."
-                    }, 
+                    },
                     {
                         id: "getListsExpand2",
                         title: "Get lists expand user some field",
                         url: "web/lists?$select=Title,Author/UserPrincipalName,Author/Email&$expand=Author&$top=100&$orderBy=Title",
                         description: "Retrieve lists in the web with Author user expanded some field."
-                    },                    
+                    },
                     {
                         id: "getListByGuid",
                         title: "Get list by guid",
@@ -890,6 +893,8 @@
                         <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1024 512v549l365 366-90 90-403-402V512h128zm944 113q80 192 80 399t-80 399q-78 183-220 325t-325 220q-192 80-399 80-174 0-336-57-158-55-289-156-130-101-223-238-47-69-81-144t-57-156l123-34q40 145 123 266t198 208 253 135 289 48q123 0 237-32t214-90 182-141 140-181 91-214 32-238q0-123-32-237t-90-214-141-182-181-140-214-91-238-32q-130 0-252 36T545 268 355 429 215 640h297v128H0V256h128v274q17-32 37-62t42-60q94-125 220-216Q559 98 710 49t314-49q207 0 399 80 183 78 325 220t220 325z"></path></svg><span>History</span></button>
                         <span class="sgart-separator">|</span>
                         <span><label>Status:</label> <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span></span>
+                        <span><label>Time:</label> <span id="${HTML_ID_HTTP_EXECUTION_TIME}" class="sgart-http-execution-time" title="HTTP execution time"></span></span>
+                        <span class="sgart-separator">|</span>
                         <span title="Response items count"><label>Count:</label> <strong id="${HTML_ID_LBL_COUNT}" class="sgart-label-count"></strong></span>
     				</div>
 					<div class="sgart-toolbar-right"><small>v. ${VERSION}</small></div>
@@ -1182,15 +1187,21 @@
 
         const elmStatus = document.getElementById(HTML_ID_HTTP_STATUS);
         elmStatus.innerText = "...";
+        const elmExcTime = document.getElementById(HTML_ID_HTTP_EXECUTION_TIME);
+        elmExcTime.innerText = "-";
 
         document.getElementById(HTML_ID_LBL_COUNT).innerText = "-";
 
         const modeVerbose = document.getElementById(HTML_ID_SELECT_ODATA).value === 'verbose';
 
+        const startTime = performance.now();
+
         fetchGetJson(input, modeVerbose).then(response => {
             cacheResponse.data = response.data;
+            const endTime = performance.now();
+            elmExcTime.innerText = (Math.round((endTime - startTime) * 10) / 10) + " ms";
+
             const statusGroup = parseInt(response.status / 100).toString() + "00";
-            const elmStatus = document.getElementById(HTML_ID_HTTP_STATUS);
             elmStatus.innerText = response.status;
             elmStatus.className = `sgart-http-status sgart-http-status-${statusGroup}`;
 
