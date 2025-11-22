@@ -5,7 +5,7 @@
 
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-19";
+    const VERSION = "1.2025-11-20";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
 
@@ -892,10 +892,10 @@
                         <button id="${HTML_ID_BTN_EXAMPLES}" class="sgart-button" title="Show popup with examples"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1792 0v1792H256V0h1536zm-128 128H384v1536h1280V128zM640 896H512V768h128v128zm896 0H768V768h768v128zm-896 384H512v-128h128v128zm896 0H768v-128h768v128zM640 512H512V384h128v128zm896 0H768V384h768v128z"></path></svg><span>Examples</span></button>
                         <button id="${HTML_ID_BTN_HISTORY}" class="sgart-button" title="Show popup with histories"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1024 512v549l365 366-90 90-403-402V512h128zm944 113q80 192 80 399t-80 399q-78 183-220 325t-325 220q-192 80-399 80-174 0-336-57-158-55-289-156-130-101-223-238-47-69-81-144t-57-156l123-34q40 145 123 266t198 208 253 135 289 48q123 0 237-32t214-90 182-141 140-181 91-214 32-238q0-123-32-237t-90-214-141-182-181-140-214-91-238-32q-130 0-252 36T545 268 355 429 215 640h297v128H0V256h128v274q17-32 37-62t42-60q94-125 220-216Q559 98 710 49t314-49q207 0 399 80 183 78 325 220t220 325z"></path></svg><span>History</span></button>
                         <span class="sgart-separator">|</span>
+                        <span title="Response items count"><label>Count:</label> <strong id="${HTML_ID_LBL_COUNT}" class="sgart-label-count"></strong></span>
+                        <span class="sgart-separator">|</span>
                         <span><label>Status:</label> <span id="${HTML_ID_HTTP_STATUS}" class="sgart-http-status" title="HTTP response status"></span></span>
                         <span><label>Time:</label> <span id="${HTML_ID_HTTP_EXECUTION_TIME}" class="sgart-http-execution-time" title="HTTP execution time"></span></span>
-                        <span class="sgart-separator">|</span>
-                        <span title="Response items count"><label>Count:</label> <strong id="${HTML_ID_LBL_COUNT}" class="sgart-label-count"></strong></span>
     				</div>
 					<div class="sgart-toolbar-right"><small>v. ${VERSION}</small></div>
                 </div>
