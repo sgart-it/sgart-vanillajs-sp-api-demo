@@ -739,7 +739,8 @@
                 align-items: center;
                 justify-content: space-between;
             }     
-            .${BASE} .sgart-header h1 { font-size: 1.2em; font-weight: bold; margin: 0; }  
+            .${BASE} .sgart-header h1 { font-size: 1.2em; font-weight: bold; margin: 0; }
+            .${BASE} .sgart-header a { display: flex }
             .${BASE} .sgart-header .sgart-button { background-color: var(--sgart-secondary-color); border: 1px solid var(--sgart-secondary-color); color: var(--sgart-secondary-color-white); padding: 5px 10px; width: 80px; }
             .${BASE} .sgart-header .sgart-button:hover { border: 1px solid var(--sgart-secondary-color-white); font-weight: normal; }
             .${BASE} .sgart-header .logo { height: 33px; margin-right: 10px; }
