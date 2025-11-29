@@ -45795,9 +45795,9 @@ const getFlowInfo = function (dataObject) {
             displayName: props.displayName,
             description: props.definitionSummary.description,
             userType: props.userType,
-            //connectionReferences: getConnections(props.connectionReferences),
-            //installedConnectionReferences: getConnections(props.installedConnectionReferences),
-            //actions: getActionsAndCount(props.definitionSummary.actions),
+            connectionReferences: getConnections(props.connectionReferences),
+            installedConnectionReferences: getConnections(props.installedConnectionReferences),
+            actions: getActionsAndCount(props.definitionSummary.actions),
             tree: getActionsTree(props.definition)
         };
         return result;
