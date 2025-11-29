@@ -5,9 +5,10 @@
 
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-pa-tool-info.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
     */
-    const VERSION = "1.2025-11-23";
+    const VERSION = "1.2025-11-29";
 
     const LOG_SOURCE = "Sgart.it:PowerAutomate:ToolInfo:";
+    const LOG_COLOR_SOURCE = "%c" + LOG_SOURCE;
     const LOG_COLOR_LOG = "color: #000; background: #5cb85c; padding: 1px 4px;";
     const LOG_COLOR_DEBUG = "color: #000; background: #5bc0de; padding: 1px 4px;";
     const LOG_COLOR_INFO = "color: #000; background: #5cb85c; padding: 1px 4px;";
@@ -43,33 +44,33 @@
     const console = {
         log: (msg, value) => {
             if (value)
-                window.console.log("%c" + LOG_SOURCE, LOG_COLOR_LOG, msg, value);
+                window.console.log(LOG_COLOR_SOURCE, LOG_COLOR_LOG, msg, value);
             else
-                window.console.log("%c" + LOG_SOURCE, LOG_COLOR_LOG, msg);
+                window.console.log(LOG_COLOR_SOURCE, LOG_COLOR_LOG, msg);
         },
         debug: (msg, value) => {
             if (value)
-                window.console.debug("%c" + LOG_SOURCE, LOG_COLOR_DEBUG, msg, value);
+                window.console.debug(LOG_COLOR_SOURCE, LOG_COLOR_DEBUG, msg, value);
             else
-                window.console.debug("%c" + LOG_SOURCE, LOG_COLOR_DEBUG, msg);
+                window.console.debug(LOG_COLOR_SOURCE, LOG_COLOR_DEBUG, msg);
         },
         info: (msg, value) => {
             if (value)
-                window.console.info("%c" + LOG_SOURCE, LOG_COLOR_INFO, msg, value);
+                window.console.info(LOG_COLOR_SOURCE, LOG_COLOR_INFO, msg, value);
             else
-                window.console.info("%c" + LOG_SOURCE, LOG_COLOR_INFO, msg);
+                window.console.info(LOG_COLOR_SOURCE, LOG_COLOR_INFO, msg);
         },
         warn: (msg, value) => {
             if (value)
-                window.console.warn("%c" + LOG_SOURCE, LOG_COLOR_WARN, msg, value);
+                window.console.warn(LOG_COLOR_SOURCE, LOG_COLOR_WARN, msg, value);
             else
-                window.console.warn("%c" + LOG_SOURCE, LOG_COLOR_WARN, msg);
+                window.console.warn(LOG_COLOR_SOURCE, LOG_COLOR_WARN, msg);
         },
         error: (msg, value) => {
             if (value)
-                window.console.error("%c" + LOG_SOURCE, LOG_COLOR_ERROR, msg, value);
+                window.console.error(LOG_COLOR_SOURCE, LOG_COLOR_ERROR, msg, value);
             else
-                window.console.error("%c" + LOG_SOURCE, LOG_COLOR_ERROR, msg);
+                window.console.error(LOG_COLOR_SOURCE, LOG_COLOR_ERROR, msg);
         }
     };
     
@@ -355,7 +356,7 @@
             .${BASE} .sgart-button.sgart-button-tab svg { fill: var(--sgart-secondary-color); }
             .${BASE} .sgart-button.selected, .${BASE} .sgart-button:hover, .${BASE} .sgart-button.sgart-button-tab.selected, .${BASE} .sgart-button.sgart-button-tab:hover { background-color: var(--sgart-primary-color-hover); color: var(--sgart-secondary-color-white); font-weight: bold; }
             .${BASE} .sgart-button.selected svg { fill: var(--sgart-secondary-color-white); }
-            .${BASE} .sgart-button.sgart-button-tab { width: 80px }
+            .${BASE} .sgart-button.sgart-button-tab { width: 100px }
             .${BASE} .sgart-button.sgart-button-tab:hover { border-color: var(--sgart-secondary-color); }
             .${BASE} .sgart-button.sgart-button-tab:hover svg { fill: var(--sgart-secondary-color-white); }
             .${BASE} .sgart-separator { margin: 0; }

@@ -5,9 +5,15 @@
 
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-20";
+    const VERSION = "1.2025-11-29";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
+    const LOG_COLOR_SOURCE = "%c" + LOG_SOURCE;
+    const LOG_COLOR_LOG = "color: #000; background: #5cb85c; padding: 1px 4px;";
+    const LOG_COLOR_DEBUG = "color: #000; background: #5bc0de; padding: 1px 4px;";
+    const LOG_COLOR_INFO = "color: #000; background: #5cb85c; padding: 1px 4px;";
+    const LOG_COLOR_WARN = "color: #000; background: #f0ad4e; padding: 1px 4px";
+    const LOG_COLOR_ERROR = "color: #fff; background: #d9534f; padding: 1px 4px";
 
     const HTML_ID_WRAPPER = "sgart-content-wrapper";
 
@@ -385,20 +391,35 @@
     };
 
     const console = {
-        log: (msg1, msg2) => {
-            window.console.log("%c" + LOG_SOURCE, 'color: #000; background: #5cb85c; padding: 1px 4px;', msg1, msg2 ?? '');
+        log: (msg, value) => {
+            if (value)
+                window.console.log(LOG_COLOR_SOURCE, LOG_COLOR_LOG, msg, value);
+            else
+                window.console.log(LOG_COLOR_SOURCE, LOG_COLOR_LOG, msg);
         },
-        debug: (msg1, msg2) => {
-            window.console.debug("%c" + LOG_SOURCE, 'color: #000; background: #5bc0de; padding: 1px 4px;', msg1, msg2 ?? '');
+        debug: (msg, value) => {
+            if (value)
+                window.console.debug(LOG_COLOR_SOURCE, LOG_COLOR_DEBUG, msg, value);
+            else
+                window.console.debug(LOG_COLOR_SOURCE, LOG_COLOR_DEBUG, msg);
         },
-        info: (msg1, msg2) => {
-            window.console.info("%c" + LOG_SOURCE, 'color: #000; background: #5cb85c; padding: 1px 4px;', msg1, msg2 ?? '');
+        info: (msg, value) => {
+            if (value)
+                window.console.info(LOG_COLOR_SOURCE, LOG_COLOR_INFO, msg, value);
+            else
+                window.console.info(LOG_COLOR_SOURCE, LOG_COLOR_INFO, msg);
         },
-        warn: (msg1, msg2) => {
-            window.console.warn("%c" + LOG_SOURCE, 'color: #000; background: #f0ad4e; padding: 1px 4px', msg1, msg2 ?? '');
+        warn: (msg, value) => {
+            if (value)
+                window.console.warn(LOG_COLOR_SOURCE, LOG_COLOR_WARN, msg, value);
+            else
+                window.console.warn(LOG_COLOR_SOURCE, LOG_COLOR_WARN, msg);
         },
-        error: (msg1, msg2) => {
-            window.console.error("%c" + LOG_SOURCE, 'color: #fff; background: #d9534f; padding: 1px 4px', msg1, msg2 ?? '');
+        error: (msg, value) => {
+            if (value)
+                window.console.error(LOG_COLOR_SOURCE, LOG_COLOR_ERROR, msg, value);
+            else
+                window.console.error(LOG_COLOR_SOURCE, LOG_COLOR_ERROR, msg);
         }
     };
 
