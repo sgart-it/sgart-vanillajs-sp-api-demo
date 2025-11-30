@@ -45783,6 +45783,34 @@ const getFlowInfo = function (dataObject) {
         return result;
     };
 
+    const getVariables = (dataObject) => {
+        const result = [];
+        try {
+            const str = JSON.stringify(dataObject);
+            for (const [key, value] of Object.entries(dataObject)) {
+                if (value.type === "InitializeVariable") {
+                    const varValue = value.inputs.variables[0];
+                    const re = RegExp(`@variables\\('${varValue.name}'\\)`, 'g');
+                    result.push({
+                        key,
+                        name: varValue.name,
+                        type: varValue.type,
+                        value: varValue.value,
+                        description: value.description,
+                        count: ((str || '').match(re) || []).length
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error in getVariables:', error);
+            result.push({
+                displayName: "ERROR",
+                message: error.message
+            });
+        }
+        return result;
+    };
+
     const getInfo = (dataObject) => {
         const props = dataObject.properties;
         const result = {
@@ -45795,10 +45823,11 @@ const getFlowInfo = function (dataObject) {
             displayName: props.displayName,
             description: props.definitionSummary.description,
             userType: props.userType,
-            connectionReferences: getConnections(props.connectionReferences),
-            installedConnectionReferences: getConnections(props.installedConnectionReferences),
-            actions: getActionsAndCount(props.definitionSummary.actions),
-            tree: getActionsTree(props.definition)
+            //connectionReferences: getConnections(props.connectionReferences),
+            //installedConnectionReferences: getConnections(props.installedConnectionReferences),
+            //actions: getActionsAndCount(props.definitionSummary.actions),
+            //tree: getActionsTree(props.definition),
+            variables: getVariables(props.definition.actions),
         };
         return result;
     };

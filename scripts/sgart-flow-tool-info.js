@@ -12,7 +12,7 @@
             }
         } allora il token non è valido, ricaricare la pagina e rieseguire lo script
     */
-    const VERSION = "1.2025-11-29";
+    const VERSION = "1.2025-11-30.beta";
 
     const LOG_SOURCE = "Sgart.it:PowerAutomate:ToolInfo:";
     const LOG_COLOR_SOURCE = "%c" + LOG_SOURCE;
@@ -42,13 +42,17 @@
     const TAB_KEY_TREE = 'sgart-tab-tree';
     const TAB_KEY_TABLE_CONN_REF = 'sgart-tab-table-conn-ref';
     const TAB_KEY_TABLE_CONN_INST = 'sgart-tab-table-conn-inst';
-    const TAB_KEY_TREE_FLOW_INFO = 'sgart-tab-tree-flow-info   ';
+    const TAB_KEY_TREE_FLOW_INFO = 'sgart-tab-tree-flow-info';
+    const TAB_KEY_TABLE_VARIABLES = 'sgart-tab-table-variables';
+    const TAB_KEY_TABLE_ACTIONS = 'sgart-tab-table-actions';
     const globalTabs = [
         { key: TAB_KEY_RAW, controlId: TAB_KEY_RAW + TAB_OUTPUT, type: "txt", text: "RAW", description: "API response", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M896 512H0V384h896v128zM384 768h896v128H384V768zm1024 0h640v128h-640V768zm640-384v128H1024V384h1024zM384 1152h1280v128H384v-128zM0 1536h1280v128H0v-128z"></path></svg>` },
         { key: TAB_KEY_TREE, controlId: TAB_KEY_TREE + TAB_OUTPUT, type: "tree", text: "Tree", description: "API response formatted as tree", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M512 384h1536v128H512V384zm512 640V896h1024v128H1024zm0 512v-128h1024v128H1024zM0 640V256h384v384H0zm128-256v128h128V384H128zm384 768V768h384v384H512zm128-256v128h128V896H640zm-128 768v-384h384v384H512zm128-256v128h128v-128H640z"></path></svg>` },
         { key: TAB_KEY_TABLE_CONN_REF, controlId: TAB_KEY_TABLE_CONN_REF + TAB_OUTPUT, type: "table", text: "Conn. Ref.", description: "Connection reference", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M256 1216q0-89 34-171t97-146l227-226 633 633-226 227q-63 63-145 97t-172 34q-73 0-141-22t-127-67l-327 326-90-90 326-327q-44-58-66-126t-23-142zm448 320q64 0 122-24t104-70l136-136-452-452-136 136q-45 45-69 103t-25 123q0 66 25 124t68 102 102 69 125 25zm871-1100q44 58 66 126t23 142q0 89-34 171t-97 146l-227 226-633-633 226-227q63-63 145-97t172-34q73 0 141 22t127 67l327-326 90 90-326 327zm-133 494q45-45 69-103t25-123q0-66-25-124t-69-101-102-69-124-26q-64 0-122 24t-104 70L854 614l452 452 136-136z"></path></svg>` },
         { key: TAB_KEY_TABLE_CONN_INST, controlId: TAB_KEY_TABLE_CONN_INST + TAB_OUTPUT, type: "table", text: "Conn. Install.", description: "Connection installed", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1300 1201l-271 271 90 90-226 227q-63 63-145 97t-172 34q-73 0-141-22t-127-67l-199 198-90-90 198-199q-44-58-66-126t-23-142q0-89 34-171t97-146l227-226 90 90 271-271 91 90-272 272 272 272 272-272 90 91zm-724 591q64 0 122-24t104-70l136-136-452-452-136 136q-45 45-69 103t-25 123q0 66 25 124t68 102 102 69 125 25zM1831 308q44 58 66 126t23 142q0 89-34 171t-97 146l-227 226-633-633 226-227q63-63 145-97t172-34q73 0 141 22t127 67l199-198 90 90-198 199zm-133 494q45-45 69-103t25-123q0-66-25-124t-69-101-102-69-124-26q-64 0-122 24t-104 70l-136 136 452 452 136-136z"></path></svg>` },
         { key: TAB_KEY_TREE_FLOW_INFO, controlId: TAB_KEY_TREE_FLOW_INFO + TAB_OUTPUT, type: "tree", text: "Flow", description: "Flow actions as tree", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1408 1152h640v640h-640v-256H992l-416 416-480-480 416-416V640H256V0h640v640H640v416l352 352h416v-256zM384 128v384h384V128H384zm192 1632l288-288-288-288-288 288 288 288zm1344-96v-384h-384v384h384z"></path></svg>` },
+        { key: TAB_KEY_TABLE_VARIABLES, controlId: TAB_KEY_TABLE_VARIABLES + TAB_OUTPUT, type: "table", text: "Variables", description: "Flow variables (InitializeVariable) and use count (BETA)", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M139 960q0 223 59 430t165 402h-97q-62-91-111-191t-83-206-53-216T0 959q0-230 71-435t195-396h97q-55 108-96 205t-70 195-43 204-15 228zm1485-478q0 48-25 72t-73 24q-17 0-34-5t-33-11-33-11-34-5q-21 0-45 16t-49 42-50 58-46 64-38 60-26 45l101 426q3 13 8 35t14 45 21 39 30 17q23 0 50-20t53-48 45-58 29-50l43 21q-12 23-32 54t-46 64-54 65-61 57-61 42-59 16q-39 0-66-23t-45-55q-8-14-18-45t-20-71-22-85-20-86-16-76-11-54q-26 48-62 108t-78 122-86 115-85 88q-32 26-68 44t-78 18q-24 0-45-7t-38-22-27-35-10-45q0-42 26-69t68-27q22 0 41 11t35 23 31 24 27 11q18 0 47-28t63-72 69-97 66-103 52-90 32-59q-10-38-20-75t-19-75q-8-32-17-72t-22-81-33-75-47-55q-31-22-64-28t-71-6q-33 0-66 3v-44l332-59q40 43 65 85t42 85 29 91 28 102q32-48 64-98t69-95 80-84 98-66q18-9 38-14t40-6q22 0 43 6t38 18 26 30 10 44zm424 477q0 110-18 220t-53 215-84 206-111 192h-97q106-195 165-402t59-430q0-146-25-290t-78-282q-26-67-57-131t-64-129h97q124 191 195 396t71 435z"></path></svg>` },
+        { key: TAB_KEY_TABLE_ACTIONS, controlId: TAB_KEY_TABLE_ACTIONS + TAB_OUTPUT, type: "table", text: "Actions", description: "Flow actions groupped with count", iconSVG: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1664 0v128H0V0h1664zm-649 512l-67 128H0V512h1015zM0 1024h747l-67 128H0v-128zm1512 0h568L1004 2048H747l304-640H691l535-1024h612l-326 640zm-559 896l807-768h-456l325-640h-325l-402 768h351l-304 640h4z"></path></svg>` },
     ];
     let currentTabKey = globalTabs[0].key;
 
@@ -260,29 +264,44 @@
         };
 
         const buildTable = (items) => {
-            console.warn('buildTable', "TODO");
-            const data = {};    // simplifyObjectOrArray(items);
-            // console.debug('buildTable: items is object', data);
             if (!items) {
-                // console.debug('buildTable: items is undefined or null');
                 return { columns: [], items: [] };
             }
-            if (Array.isArray(data)) {
-                return buildTableItems(data);
+            if (Array.isArray(items)) {
+                return buildTableItems(items);
             }
-            return buildTableItem(data);
+            return buildTableItem(items);
         };
 
-        const renderTable = (table) => {
+        const renderTable = (table, addCountRow) => {
             let html = '<table border="1" cellpadding="5" cellspacing="0"><thead><tr>';
+            if (addCountRow === true) {
+                html += `<th>Nr.</th>`;
+            }
             table.columns.forEach(col => {
                 html += `<th>${col.name}</th>`;
             });
             html += '</tr></thead><tbody>';
-            table.items.forEach(item => {
+            table.items.forEach((item, index) => {
                 html += '<tr>';
+                if (addCountRow === true) {
+                    html += `<td>${index + 1}</td>`;
+                }
                 table.columns.forEach(col => {
-                    html += `<td>${item[col.fieldName]}</td>`;
+                    try {
+                        const v = item[col.fieldName];
+                        if (typeof v === 'string') {
+                            if (v.length > 0 && ((v.startsWith('{') && v.endsWith('}')) || (v.startsWith('[') && v.endsWith(']')))) {
+                                html += `<td data-value='${v.htmlEncode()}'>object</td>`;
+                            } else {
+                                html += `<td>${v.htmlEncode()}</td>`;
+                            }
+                        } else {
+                            html += `<td>${v}</td>`;
+                        }
+                    } catch (error) {
+                        console.error("Error rendering table cell:", error);
+                    }
                 });
                 html += '</tr>';
             });
@@ -290,9 +309,9 @@
             return html;
         };
 
-        const buid = (json) => {
+        const buid = (json, addCountRow) => {
             const tableItems = buildTable(json);
-            const html = renderTable(tableItems);
+            const html = renderTable(tableItems, addCountRow);
             return html;
         };
 
@@ -349,7 +368,7 @@
             .${BASE} .sgart-output-area > div {position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: auto; flex-grow: 1; display: flex; box-sizing: border-box; border: 1px solid var(--sgart-primary-color); background-color: var(--sgart-secondary-color-white); }
             .${BASE} .sgart-output-area .sgart-output-tree { padding: .5em; }
             .${BASE} .sgart-output-area table { border-collapse: collapse; width: 100%; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color-dark);}
-            .${BASE} .sgart-output-txt, .${BASE} .sgart-output-table { width: 100%; height: auto; flex-grow: 1; gap: 10px; font-family: consolas, menlo, monaco, "Ubuntu Mono", source-code-pro, monospace;  font-size: 14px; white-space: pre; box-sizing: border-box; border: none; }
+            .${BASE} .sgart-output-txt, .${BASE} .sgart-output-table { width: 100%; height: auto; flex-grow: 1; gap: 10px; font-family: consolas, menlo, monaco, "Ubuntu Mono", source-code-pro, monospace; font-size: 14px; white-space: pre; box-sizing: border-box; border: none; }
             .${BASE} table th { background-color: var(--sgart-primary-color); color: var(--sgart-secondary-color-white); text-align: left; position: sticky; top: 0; z-index: 1000; padding: 5px;}
             .${BASE} .sgart-http-status { border: 1px solid var(--sgart-secondary-color); padding: 0; background-color: var(--sgart-secondary-color-gray-light); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
             .${BASE} .sgart-http-status-100 { background-color: #e7f3fe; color: #31708f; border-color: #bce8f1; }  
@@ -789,6 +808,35 @@
             return result;
         };
 
+        const getVariables = (dataObject) => {
+            const result = [];
+            try {
+                const str = JSON.stringify(dataObject);
+                for (const [key, value] of Object.entries(dataObject)) {
+                    if (value.type === "InitializeVariable") {
+                        const varValue = value.inputs.variables[0];
+                        // TODO: migliorare regex per evitare falsi positivi
+                        const re = RegExp(`@variables\\('${varValue.name}'\\)|@\\{variables\\('${varValue.name}'\\)\\}`, 'g');
+                        result.push({
+                            key,
+                            name: varValue.name,
+                            type: varValue.type,
+                            value: varValue.value,
+                            description: value.description,
+                            count: ((str || '').match(re) || []).length
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error in getVariables:', error);
+                result.push({
+                    displayName: "ERROR",
+                    message: error.message
+                });
+            }
+            return result;
+        };
+
         const getInfo = (dataObject) => {
             try {
                 const props = dataObject.properties;
@@ -805,7 +853,8 @@
                     connectionReferences: getConnections(props.connectionReferences),
                     installedConnectionReferences: getConnections(props.installedConnectionReferences),
                     actions: getActionsAndCount(props.definitionSummary.actions),
-                    tree: getActionsTree(props.definition)
+                    tree: getActionsTree(props.definition),
+                    variables: getVariables(props.definition.actions)
                 };
                 return result;
             } catch (error) {
@@ -837,11 +886,23 @@
                         formatObjectAsHtmlTree(data, item.controlId);
                         break;
                     case TAB_KEY_TABLE_CONN_REF:
-                        const tableHtml = htmlTableFromJson.buid(flowInfo.connectionReferences);
-                        elm.innerHTML = tableHtml;
+                        const tableRefHtml = htmlTableFromJson.buid(flowInfo.connectionReferences, true);
+                        elm.innerHTML = tableRefHtml;
+                        break;
+                    case TAB_KEY_TABLE_CONN_INST:
+                        const tableInstHtml = htmlTableFromJson.buid(flowInfo.installedConnectionReferences, true);
+                        elm.innerHTML = tableInstHtml;
+                        break;
+                    case TAB_KEY_TABLE_VARIABLES:
+                        const tableVarsHtml = htmlTableFromJson.buid(flowInfo.variables, true);
+                        elm.innerHTML = tableVarsHtml;
+                        break;
+                    case TAB_KEY_TABLE_ACTIONS:
+                        const tableActionsHtml = htmlTableFromJson.buid(flowInfo.actions, true);
+                        elm.innerHTML = tableActionsHtml;
                         break;
                     case TAB_KEY_TREE_FLOW_INFO:
-                        formatObjectAsHtmlTree(flowInfo.tree, item.controlId);
+                        formatObjectAsHtmlTree(flowInfo.tree, item.controlId, true);
                         break;
                 }
             });
@@ -897,7 +958,7 @@
             const controlElem = document.getElementById(item.controlId);
             if (item.key === key) {
                 btn.classList.add('selected');
-                controlElem.style.display = 'flex';
+                controlElem.style.display = 'block';
             } else {
                 btn.classList.remove('selected');
                 controlElem.style.display = 'none';
