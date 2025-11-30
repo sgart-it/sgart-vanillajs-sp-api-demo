@@ -1,7 +1,7 @@
 (function () {
     /*
-        Power Automate Tool Info (Sgart.it)
-        https://www.sgart.it/IT/informatica/???/post
+        Power Automate Tool Show Info (Sgart.it)
+        https://www.sgart.it/IT/informatica/tool-power-automate-show-info-vanilla-js/post
 
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-pa-tool-info.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
 
@@ -14,7 +14,7 @@
     */
     const VERSION = "1.2025-11-30.beta";
 
-    const LOG_SOURCE = "Sgart.it:PowerAutomate:ToolInfo:";
+    const LOG_SOURCE = "Sgart.it:PowerAutomate:ToolShowInfo:";
     const LOG_COLOR_SOURCE = "%c" + LOG_SOURCE;
     const LOG_COLOR_LOG = "color: #000; background: #5cb85c; padding: 1px 4px;";
     const LOG_COLOR_DEBUG = "color: #000; background: #5bc0de; padding: 1px 4px;";
