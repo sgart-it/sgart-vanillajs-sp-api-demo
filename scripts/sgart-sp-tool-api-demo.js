@@ -5,7 +5,7 @@
 
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2025-11-29";
+    const VERSION = "1.2026-01-31";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
     const LOG_COLOR_SOURCE = "%c" + LOG_SOURCE;
@@ -24,6 +24,7 @@
     const HTML_ID_BTN_COPY_OUTPUT = "sgart-btn-copy-output";
     const HTML_ID_BTN_EXAMPLES = "sgart-btn-examples";
     const HTML_ID_BTN_HISTORY = "sgart-btn-history";
+    const HTML_ID_BTN_EDIT_API_URL = "sgart-btn-edit-api-url";
     const HTML_ID_LBL_COUNT = "sgart-label-count";
     const HTML_ID_HTTP_STATUS = "sgart-http-status";
     const HTML_ID_HTTP_EXECUTION_TIME = "sgart-http-execution-time";
@@ -41,6 +42,17 @@
     const HTML_ID_TAB_SIMPLE = "sgart-tab-response-simple";
     const HTML_ID_TAB_TREE = "sgart-tab-response-tree";
     const HTML_ID_TAB_TABLE = "sgart-tab-response-table";
+
+    const HTML_ID_EDIT_SITEURL = "sgart-edit-siteurl";
+    const HTML_ID_EDIT_APIURL = "sgart-edit-apiurl";
+    const HTML_ID_EDIT_SELECT = "sgart-edit-select";
+    const HTML_ID_EDIT_ORDERBY = "sgart-edit-orderby";
+    const HTML_ID_EDIT_TOP = "sgart-edit-top";
+    const HTML_ID_EDIT_SKIP = "sgart-edit-skip";
+    const HTML_ID_EDIT_FILTER = "sgart-edit-filter";
+    const HTML_ID_EDIT_EXPAND = "sgart-edit-expand";
+    const HTML_ID_EDIT_SITEFULLURL = "sgart-edit-sitefullurl";
+    const HTML_ID_BTN_EDIT_UPDATE = "sgart-btn-edit-api-url-update";
 
     const TAB_KEY_RAW = 'raw';
     const TAB_KEY_SIMPLE = 'simple';
@@ -148,19 +160,19 @@
                     {
                         id: "getLists",
                         title: "Get lists",
-                        url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderBy=Title",
+                        url: "web/lists?$select=Id,Title,BaseType,ItemCount,EntityTypeName,Hidden,LastItemUserModifiedDate&$top=100&$orderby=Title",
                         description: "Retrieve lists in the web with selected fields and ordering."
                     },
                     {
                         id: "getListsExpand",
                         title: "Get lists expand user",
-                        url: "web/lists?$select=Title&$expand=Author&$top=100&$orderBy=Title",
+                        url: "web/lists?$select=Title&$expand=Author&$top=100&$orderby=Title",
                         description: "Retrieve lists in the web with Author user expanded."
                     },
                     {
                         id: "getListsExpand2",
                         title: "Get lists expand user some field",
-                        url: "web/lists?$select=Title,Author/UserPrincipalName,Author/Email&$expand=Author&$top=100&$orderBy=Title",
+                        url: "web/lists?$select=Title,Author/UserPrincipalName,Author/Email,Author/LoginName,Author/Title,Author/Id&$expand=Author&$top=100&$orderby=Title",
                         description: "Retrieve lists in the web with Author user expanded some field."
                     },
                     {
@@ -190,20 +202,26 @@
                     {
                         id: "getViews",
                         title: "Get views",
-                        url: "web/lists/getbytitle('Documents')/views?$top=100&$orderBy=Title",
+                        url: "web/lists/getbytitle('Documents')/views?$top=100&$orderby=Title",
                         description: "List views for a list with ordering and paging."
                     },
                     {
                         id: "getViewsHidden",
                         title: "Get views hidden",
-                        url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderBy=Title&$filter=Hidden eq true",
+                        url: "web/lists/getbytitle('Documents')/views?$select=Id,Title,ServerRelativeUrl,ViewQuery&$top=100&$orderby=Title&$filter=Hidden eq true",
                         description: "List hidden views for a list using a filter."
                     },
                     {
-                        id: "getContenttypes",
+                        id: "getContentTypes",
                         title: "Get content types",
-                        url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderBy=Name",
+                        url: "web/lists/getbytitle('Documents')/contenttypes?$select=*&$orderby=Name",
                         description: "Retrieve content types associated with the list."
+                    },
+                    {
+                        id: "getListSubscriptions",
+                        title: "Get list subscriptions",
+                        url: "web/lists/getbytitle('Documents')/subscriptions",
+                        description: "Retrieve subscriptions for a list."
                     }
                 ]
             },
@@ -214,7 +232,7 @@
                     {
                         id: "getItems",
                         title: "Get items",
-                        url: "web/lists/getbytitle('Documents')/items?$top=10&$orderBy=Id desc",
+                        url: "web/lists/getbytitle('Documents')/items?$top=10&$orderby=Id desc",
                         description: "Retrieve items from a list with paging and ordering."
                     },
                     {
@@ -258,6 +276,12 @@
                         title: "Get file content",
                         url: "web/getfilebyserverrelativeurl('/sites/someSite/Shared Documents/file.txt')/$value",
                         description: "Download the raw file content (value endpoint)."
+                    },
+                    {
+                        id: "getFlies",
+                        title: "Get files",
+                        url: "web/lists/getbytitle('Documents')/files",
+                        description: "Get all files in a list."
                     }
                 ]
             },
@@ -672,7 +696,6 @@
         if (!query) return "";
         const q = "?"
             + Object.keys(query)
-                //.map(k => "$" + encodeURIComponent(k) + "=" + encodeURIComponent(query[k]))
                 .map(k => "$" + k + "=" + query[k])
                 .join("&");
         return q;
@@ -724,19 +747,7 @@
             }
             .${BASE} select { width: 180px; }
             .${BASE} #sgart-api-demo { width: 200px; }
-            .${BASE} .sgart-button  {
-                background-color: var(--sgart-primary-color);
-                color: var(--sgart-secondary-color-white);
-                padding: 0 10px;
-                cursor: pointer;
-                width: 110px;
-                overflow: hidden;
-                white-space: nowrap;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-            }
+            .${BASE} .sgart-button  { background-color: var(--sgart-primary-color); color: var(--sgart-secondary-color-white); padding: 0 10px; cursor: pointer; width: 110px; overflow: hidden; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px; }
             #${HTML_ID_BTN_EXECUTE} { background-color: var(--sgart-btn-color-execute); border: 1px solid var(--sgart-btn-color-execute-border); color: var(--sgart-secondary-color-dark)}
             #${HTML_ID_BTN_EXECUTE} svg { fill: var(--sgart-secondary-color-dark);}
             .${BASE} .sgart-button svg { color: var(--sgart-secondary-color-white); fill: var(--sgart-secondary-color-white); height: 20px; width: 20px; }
@@ -748,18 +759,7 @@
             .${BASE} .sgart-button.sgart-button-tab:hover { border-color: var(--sgart-secondary-color); }
             .${BASE} .sgart-button.sgart-button-tab:hover svg { fill: var(--sgart-secondary-color-white); }
             .${BASE} .sgart-separator { margin: 0; }
-            .${BASE} .sgart-header {
-                position: relative;
-                background-color: var(--sgart-secondary-color);  
-                color: var(--sgart-secondary-color-white);
-                padding: 5px 10px;
-                border-bottom: 1px solid var(--sgart-secondary-color-gray-light);
-                height: 40px;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }     
+            .${BASE} .sgart-header { position: relative; background-color: var(--sgart-secondary-color); color: var(--sgart-secondary-color-white); padding: 5px 10px; border-bottom: 1px solid var(--sgart-secondary-color-gray-light); height: 40px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }     
             .${BASE} .sgart-header h1 { font-size: 1.2em; font-weight: bold; margin: 0; }
             .${BASE} .sgart-header a { display: flex }
             .${BASE} .sgart-header .sgart-button { background-color: var(--sgart-secondary-color); border: 1px solid var(--sgart-secondary-color); color: var(--sgart-secondary-color-white); padding: 5px 10px; width: 80px; }
@@ -771,43 +771,16 @@
             .${BASE} .sgart-body { display: flex; flex-direction: column; flex-grow: 1; padding: 10px; gap: 10px; font-weight: normal; }
             .${BASE} .sgart-body label { font-weight: normal; padding: 0; text-wrap-mode: nowrap; }   
             .${BASE} .sgart-input-area { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-            .${BASE} .sgart-input { flex-grow: 1; }
+            .${BASE} .sgart-input-wrapper { display: flex; gap: 0; justify-content: space-between; flex-grow: 1; border: 1px solid var(--sgart-primary-color); background-color: var(--sgart-secondary-color-white); box-sizing: border-box; background-image: none; border-radius: 2px;}
+            .${BASE} .sgart-input-wrapper .sgart-input { border:none }
+            .${BASE} .sgart-input-wrapper .sgart-button { width: 48px; border-radius: 0;  }
+            .${BASE} .sgart-input { flex-grow: 1; border-bottom-right-radius: 2px; border-top-right-radius: 2px; }
             .${BASE} .sgart-output-area { flex-grow: 1; display: flex; overflow: hidden; position: relative; }
-            .${BASE} .sgart-output-area > div {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;    
-                overflow: auto;
-                flex-grow: 1;   
-                display: flex;
-                box-sizing: border-box;
-                border: 1px solid var(--sgart-primary-color);
-                background-color: var(--sgart-secondary-color-white);
-            }
+            .${BASE} .sgart-output-area > div { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: auto; flex-grow: 1; display: flex; box-sizing: border-box; border: 1px solid var(--sgart-primary-color); background-color: var(--sgart-secondary-color-white); }
             .${BASE} .sgart-output-area .sgart-output-tree { padding: .5em; }
             .${BASE} .sgart-output-area table { border-collapse: collapse; width: 100%; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color-dark);}
-            .${BASE} .sgart-output-txt, .${BASE} .sgart-output-table {
-                width: 100%;    
-                height: auto;
-                flex-grow: 1;
-                gap: 10px;
-                font-family: monospace;
-                font-size: 14px;
-                resize: none;
-                box-sizing: border-box;
-                border: none;
-            }
-            .${BASE} table th {
-                background-color: var(--sgart-primary-color);
-                color: var(--sgart-secondary-color-white);
-                text-align: left;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-                padding: 5px;
-            }
+            .${BASE} .sgart-output-txt, .${BASE} .sgart-output-table { width: 100%; height: auto; flex-grow: 1; gap: 10px; font-family: monospace; font-size: 14px; resize: none; box-sizing: border-box; border: none; }
+            .${BASE} table th { background-color: var(--sgart-primary-color); color: var(--sgart-secondary-color-white); text-align: left; position: sticky; top: 0; z-index: 1000; padding: 5px; }
             .${BASE} .sgart-http-status { border: 1px solid var(--sgart-secondary-color); padding: 0; background-color: var(--sgart-secondary-color-gray-light); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
             .${BASE} .sgart-http-status-100 { background-color: #e7f3fe; color: #31708f; border-color: #bce8f1; }  
             .${BASE} .sgart-http-status-200 { background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6; }
@@ -815,45 +788,10 @@
             .${BASE} .sgart-http-status-400 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }
             .${BASE} .sgart-http-status-500 { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }   
             .${BASE} .sgart-label-count { border: 1px solid var(--sgart-secondary-color-gray-light); padding: 0; background-color: var(--sgart-secondary-color-white); color: var(--sgart-secondary-color); font-weight: bold; display: inline-flex; width: 50px; height: 32px; align-items: center; justify-content: center; }
-            .${BASE} .sgart-popup {
-                position: fixed;
-                display: none;   /*flex;*/
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                backdrop-filter: blur(5px);
-                z-index: 10001;
-                padding: 40px 20px 20px 20px;
-            }
-            .${BASE} .sgart-popup .sgart-popup-wrapper {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                background-color: var(--sgart-secondary-color-white);
-                border: 2px solid var(--sgart-primary-color);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                z-index: 10002;
-            }
-            .${BASE} .sgart-popup .sgart-pupup-header {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px;
-                height: 40px;
-                border-bottom: 1px solid var(--sgart-primary-color);
-                background-color: var(--sgart-primary-color);
-                color: var(--sgart-secondary-color-white);
-            }
-            .${BASE} .sgart-popup .sgart-popup-body {
-                display: flex;
-                flex-direction: column;
-                padding: 10px;
-                height: 100%;
-                overflow-x: hidden;
-                overflow-y: auto;
-            }
+            .${BASE} .sgart-popup { position: fixed; display: none;   /*flex;*/ top: 0; left: 0; right: 0; bottom: 0; backdrop-filter: blur(5px); z-index: 10001; padding: 40px 20px 20px 20px; }
+            .${BASE} .sgart-popup .sgart-popup-wrapper { display: flex; flex-direction: column; width: 100%; background-color: var(--sgart-secondary-color-white); border: 2px solid var(--sgart-primary-color); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 10002; }
+            .${BASE} .sgart-popup .sgart-pupup-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px; height: 40px; border-bottom: 1px solid var(--sgart-primary-color); background-color: var(--sgart-primary-color); color: var(--sgart-secondary-color-white); }
+            .${BASE} .sgart-popup .sgart-popup-body { display: flex; flex-direction: column; padding: 10px; height: 100%; overflow-x: hidden; overflow-y: auto; }
             .${BASE} .sgart-popup h3 { margin: 0; font-size: 18px;}
             .${BASE} .sgart-popup .sgart-popup-group { display: block; padding: 10px; }
             .${BASE} .sgart-popup .sgart-popup-group > div { display: flex; flex-direction: row; justify-content: flex-start; padding: 10px; flex-wrap: wrap; }
@@ -863,6 +801,11 @@
             .${BASE} .sgart-popup .sgart-popup-action > div { word-wrap: break-word; margin: 8px 0;}
             .${BASE} .sgart-popup .sgart-popup-history li { display: flex; flex-direction: row; align-items: center; margin: 5px 0; gap: 10px; justify-content: space-between;}
             .${BASE} .sgart-popup .sgart-popup-history button { flex: auto;}
+            .${BASE} .sgart-popup .sgart-toolbar.sgart-popup-tabs { gap: 10px; justify-content: flex-start; }
+            .${BASE} .sgart-popup-edit > div { display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 5px 0; }
+            .${BASE} .sgart-popup-edit > div label { width: 120px; flex: none; text-align: right; }
+            .${BASE} .sgart-popup-edit > div input, .${BASE} .sgart-popup-edit > div select { flex: auto; }
+            .${BASE} .sgart-popup-edit .sgart-popup-buttons-actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
         if (stylePrev) {
@@ -892,7 +835,10 @@
             <div class="sgart-body">
                 <div class="sgart-input-area">
                     <label for="${HTML_ID_TXT_INPUT}">API url:</label>
-                    <input type="text" id="${HTML_ID_TXT_INPUT}" class="sgart-input" value="web/lists">
+                    <div class="sgart-input-wrapper">
+                        <input type="text" id="${HTML_ID_TXT_INPUT}" class="sgart-input" value="web/lists">
+                        <button id="${HTML_ID_BTN_EDIT_API_URL}" type="button" class="sgart-button" title="Edit API url"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" class="svg_dd790ee3" focusable="false"><path d="M2048 335q0 66-25 128t-73 110L633 1890 0 2048l158-633L1475 98q48-48 110-73t128-25q69 0 130 26t106 72 72 107 27 130zM326 1428q106 35 182 111t112 183L1701 640l-293-293L326 1428zm-150 444l329-82q-10-46-32-87t-55-73-73-54-87-33l-82 329zM1792 549q25-25 48-47t41-46 28-53 11-67q0-43-16-80t-45-66-66-45-81-17q-38 0-66 10t-53 29-47 41-47 48l293 293z"></path></svg></button>
+                    </div>
                     <select id="${HTML_ID_SELECT_ODATA}" title="OData HTTP header 'accept'">
                         <option value="nometadata" selected>Nometadata [accept:application/json; odata=nometadata]</option>
                         <option value="verbose">Verbose [accept:application/json; odata=verbose]</option>
@@ -1029,6 +975,7 @@
 
     const EVENT_CLOSE = "popup-close";
     const EVENT_SET_URL = "set-url";
+    const EVENT_POPUP_TAB = "popup-tab";
 
     const popup = (function () {
         let fnHandleClick = undefined;
@@ -1075,16 +1022,194 @@
                 document.getElementById(HTML_ID_TXT_INPUT).value = url;
                 popup.hide();
                 handleExecuteClickEvent();
+            } else if (poupEvent === EVENT_POPUP_TAB) {
+                const group = actionElem.getAttribute('data-group');
+                document.querySelectorAll(`.${BASE} .sgart-popup-body .sgart-toolbar .sgart-button-tab`).forEach(btn => {
+                    btn.classList.remove('selected');
+                    btn.getAttribute('data-group') === group ? btn.classList.add('selected') : null;
+                });
+                document.querySelectorAll(`.${BASE} .sgart-popup-group`).forEach(btn => {
+                    btn.style.display = btn.classList.contains(group) ? 'block' : 'none';
+                });
             } else {
                 console.error("Unknown popup event:", poupEvent);
             }
         }
     }
 
+    /*
+     * Ricostruisce la url completa nell'edit popup in base ai parametri modificati
+     */
+    function handleEditApiUrlChangeEvent() {
+        const siteUrl = document.getElementById(HTML_ID_EDIT_SITEURL).value;
+        let apiUrl = document.getElementById(HTML_ID_EDIT_APIURL).value;
+
+        document.getElementsByName(HTML_ID_EDIT_APIURL + "_param").forEach(input => {
+            const paramName = input.getAttribute("data-param");
+            const isNumber = input.getAttribute("data-number") === "true";
+            if (isNumber) {
+                apiUrl = apiUrl.replace(paramName, input.value);
+            } else {
+                apiUrl = apiUrl.replace(paramName, "'" + input.value + "'");
+            }
+        });
+        const selectQuery = document.getElementById(HTML_ID_EDIT_SELECT).value;
+        const orderbyQuery = document.getElementById(HTML_ID_EDIT_ORDERBY).value;
+        const topQuery = document.getElementById(HTML_ID_EDIT_TOP).value;
+        const skipQuery = document.getElementById(HTML_ID_EDIT_SKIP).value;
+        const filterQuery = document.getElementById(HTML_ID_EDIT_FILTER).value;
+        const expandQuery = document.getElementById(HTML_ID_EDIT_EXPAND).value;
+        const fullUrl = siteUrl + apiUrl
+            + (selectQuery || orderbyQuery || topQuery || skipQuery || filterQuery || expandQuery ? "?" : "")
+            + (selectQuery ? 'select=' + selectQuery : '')
+            + (orderbyQuery ? '&$orderby=' + orderbyQuery : '')
+            + (topQuery ? '&$top=' + topQuery : '')
+            + (skipQuery ? '&$skip=' + skipQuery : '')
+            + (filterQuery ? '&$filter=' + filterQuery : '')
+            + (expandQuery ? '&$expand=' + expandQuery : '');
+        document.getElementById(HTML_ID_EDIT_SITEFULLURL).innerText = fullUrl;
+    }
+
+    /* Edit API Url Popup 
+     * todo: MIGLIORARE IL PARSING DELLE URL CON REGEX O ALTRO
+     */
+    function handleEditApiUrlClickEvent() {
+        const urlInput = document.getElementById(HTML_ID_TXT_INPUT).value;
+        const iApi = urlInput.indexOf("/_api/");
+        const iQuery = urlInput.indexOf("?");
+        if (iApi === -1) {
+            alert("Invalid API url. The url must contain '/_api/'");
+            return;
+        }
+        const siteUrl = iApi !== -1 ? urlInput.substring(0, iApi) : "";
+        let apiUrl = iApi !== -1
+            ? urlInput.substring(iApi, iQuery !== -1 ? iQuery : urlInput.length)
+            : urlInput;
+
+        let selectQuery = "";
+        let orderbyQuery = "";
+        let topQuery = "";
+        let skipQuery = "";
+        let filterQuery = "";
+        let expandQuery = "";
+
+        if (iQuery !== -1) {
+            const queryString = urlInput.substring(iQuery + 1);
+            const urlParams = new URLSearchParams(queryString);
+            selectQuery = urlParams.get("$select") || "";
+            orderbyQuery = urlParams.get("$orderby") || "";
+            topQuery = urlParams.get("$top") || "";
+            skipQuery = urlParams.get("$skip") || "";
+            filterQuery = urlParams.get("$filter") || "";
+            expandQuery = urlParams.get("$expand") || "";
+        }
+
+        const parts = [];  // { name: string, value: string | null, paramName: string, isNumber: boolean }[]
+        let paramId = 0;
+        apiUrl.split('/').forEach(part => {
+            console.log("API part:", part);
+            if (part !== '') {
+                const i = part.indexOf("(");
+                if (i !== -1) {
+                    const name = part.substring(0, i);
+                    let value = part.substring(i + 1, part.length - 1);
+                    if (value.startsWith('guid')) {
+                        value = value.substring(5);
+                    }
+                    let isNumber = true;
+                    if (value.startsWith("'") && value.endsWith("'")) {
+                        value = value.substring(1, value.length - 1);
+                        isNumber = false;
+                    }
+                    parts.push({ name: name, value: value, paramName: "@Param" + paramId, isNumber: isNumber });
+                    paramId++;
+                } else if ((part.startsWith("{") && part.endsWith("}"))) {
+                    const value = part.substring(1, part.length - 1);
+                    parts.push({ name: part, value: value, paramName: "@Param" + paramId, isNumber: false });
+                    paramId++;
+                } else {
+                    parts.push({ name: part, value: null, isNumber: false });
+                }
+            }
+        });
+        if (parts.length > 0) {
+            apiUrlTemp = "";
+            parts.forEach(p => {
+                if (p.value !== null) {
+                    apiUrlTemp += "/" + p.name + "(" + p.paramName + ")";
+                } else {
+                    apiUrlTemp += "/" + p.name;
+                }
+            });
+        }
+        console.log("API apiUrlTemp:", apiUrlTemp);
+        console.log("API params:", parts);
+
+        let strPrams = "";
+        parts.forEach(p => {
+            if (p.value !== null && p.paramName !== undefined) {
+                strPrams += "<div>"
+                    + "<label></label><label>" + p.paramName + "</label>"
+                    + "<input name='" + HTML_ID_EDIT_APIURL + "_param' type='text' value=\"" + p.value.htmlEncode() + "\" data-param=\"" + p.paramName + "\" data-number=\"" + p.isNumber + "\"/>"
+                    + "</div>";
+            }
+        });
+        if (strPrams !== "") {
+            apiUrl = apiUrlTemp;
+        }
+
+        let html = "<div class='sgart-popup-edit'>"
+            + "<div><label>Full url:</label><strong id='" + HTML_ID_EDIT_SITEFULLURL + "'></strong></div>"
+            + "<div><label>Site url:</label><input id='" + HTML_ID_EDIT_SITEURL + "' type='text' value=\"" + siteUrl.htmlEncode() + "\" /></div>"
+            + "<div><label>Api url:</label><input id='" + HTML_ID_EDIT_APIURL + "' type='text' value=\"" + apiUrl.htmlEncode() + "\" /></div>"
+            + strPrams
+            + "<div><label>$select:</label><input id='" + HTML_ID_EDIT_SELECT + "' type='text' value=\"" + selectQuery.htmlEncode() + "\" title='Comma separated field names'/></div>"
+            + "<div><label>$orderby:</label><input id='" + HTML_ID_EDIT_ORDERBY + "' type='text' value=\"" + orderbyQuery.htmlEncode() + "\" title='InternalName asc or desc'/></div>"
+            + "<div><label>$top:</label><input id='" + HTML_ID_EDIT_TOP + "' type='text' value=\"" + topQuery.htmlEncode() + "\" /></div>"
+            + "<div><label>$skip:</label><input id='" + HTML_ID_EDIT_SKIP + "' type='text' value=\"" + skipQuery.htmlEncode() + "\" /></div>"
+            + "<div><label>$filter:</label><input id='" + HTML_ID_EDIT_FILTER + "' type='text' value=\"" + filterQuery.htmlEncode() + "\" title='OData filter expression, valid operator: Lt, Le, Gt, Ge,Eq, Ne, startswith(...), substringof(...)''/></div>"
+            + "<div><label>$expand:</label><input id='" + HTML_ID_EDIT_EXPAND + "' type='text' value=\"" + expandQuery.htmlEncode() + "\" title='Comma separated field names'/></div>"
+            + "<div>"
+            + "<label>More info:</label>"
+            + "<a href='https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/use-odata-query-operations-in-sharepoint-rest-requests' target='_blank'>Use OData query operations in SharePoint REST requests</a>"
+            + "<div style='flex-grow:1; display:flex; justify-content:flex-end;'><button id='" + HTML_ID_BTN_EDIT_UPDATE + "' class='sgart-button'>Update</button></div>"
+            + "</div>"
+            + "</div>"
+
+        popup.show("Edit API url", html, handlePopupClickEvent);
+        handleEditApiUrlChangeEvent();
+
+        document.getElementById(HTML_ID_EDIT_SITEURL).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_APIURL).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_SELECT).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_ORDERBY).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_TOP).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_SKIP).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_FILTER).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementById(HTML_ID_EDIT_EXPAND).addEventListener("input", handleEditApiUrlChangeEvent);
+        document.getElementsByName(HTML_ID_EDIT_APIURL + "_param").forEach(inputElem => {
+            inputElem.addEventListener("input", handleEditApiUrlChangeEvent);
+        });
+        document.getElementById(HTML_ID_BTN_EDIT_UPDATE).addEventListener("click", () => {
+            const fullUrl = document.getElementById(HTML_ID_EDIT_SITEFULLURL).innerText;
+            document.getElementById(HTML_ID_TXT_INPUT).value = fullUrl;
+            popup.hide();
+            handleExecuteClickEvent();
+        });
+    }
+
     function popupShowExamples() {
-        let html = "";
+        let html = "<div class='sgart-toolbar sgart-popup-tabs'>"
+            + "<button class='sgart-button sgart-button-tab sgart-popup-event selected' data-event='" + EVENT_POPUP_TAB + "' data-group='sgart-all'>All</button>";
         EXAMPLES.groups.forEach(group => {
-            html += "<div class='sgart-popup-group'><h3>" + group.title.htmlEncode() + "</h3><div>";
+            html += "<button class='sgart-button sgart-button-tab sgart-popup-event' data-event='" + EVENT_POPUP_TAB + "' data-group='" + group.id + "'>"
+                + group.title.htmlEncode()
+                + "</button>";
+        });
+        html += "</div>";
+
+        EXAMPLES.groups.forEach(group => {
+            html += "<div class='sgart-popup-group sgart-all " + group.id + "'><h3>" + group.title.htmlEncode() + "</h3><div>";
             group.actions.forEach(action => {
                 const relativeUrl = '_api/' + action.url + getQueryParam(action.query);
                 const url = (serverRelativeUrlPrefix + relativeUrl).htmlEncode();
@@ -1103,6 +1228,7 @@
             html += "</div></div>";
         });
         popup.show("Examples and usage", html, handlePopupClickEvent);
+
     }
 
     function popupShowHistory() {
@@ -1284,6 +1410,7 @@
         txtInput.addEventListener("keydown", handleExecuteKeydownEvent);
 
         document.getElementById(HTML_ID_BTN_EXIT).addEventListener("click", handleExitClickEvent);
+        document.getElementById(HTML_ID_BTN_EDIT_API_URL).addEventListener("click", handleEditApiUrlClickEvent);
         document.getElementById(HTML_ID_BTN_EXAMPLES).addEventListener("click", popupShowExamples);
         document.getElementById(HTML_ID_BTN_HISTORY).addEventListener("click", popupShowHistory);
         document.getElementById(HTML_ID_BTN_CLEAR_OUTPUT).addEventListener("click", () => {
