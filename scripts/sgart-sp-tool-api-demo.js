@@ -5,7 +5,7 @@
 
         javascript:(function(){var s=document.createElement('script');s.src='/SiteAssets/ToolApiDemo/sgart-sp-tool-api-demo.js?t='+(new Date()).getTime();document.head.appendChild(s);})();
      */
-    const VERSION = "1.2026-01-31";
+    const VERSION = "1.2026-04-18";
 
     const LOG_SOURCE = "Sgart.it:SharePoint API Demo:";
     const LOG_COLOR_SOURCE = "%c" + LOG_SOURCE;
@@ -53,6 +53,7 @@
     const HTML_ID_EDIT_EXPAND = "sgart-edit-expand";
     const HTML_ID_EDIT_SITEFULLURL = "sgart-edit-sitefullurl";
     const HTML_ID_BTN_EDIT_UPDATE = "sgart-btn-edit-api-url-update";
+    const HTML_ID_EDIT_LISTFIELDS = "sgart-edit-listfields";
 
     const TAB_KEY_RAW = 'raw';
     const TAB_KEY_SIMPLE = 'simple';
@@ -673,7 +674,7 @@
             table.items.forEach(item => {
                 html += '<tr>';
                 table.columns.forEach(col => {
-                    html += `<td>${item[col.fieldName]}</td>`;
+                    html += `<td><span>${item[col.fieldName]}</span></td>`;
                 });
                 html += '</tr>';
             });
@@ -802,9 +803,13 @@
             .${BASE} .sgart-popup .sgart-popup-history li { display: flex; flex-direction: row; align-items: center; margin: 5px 0; gap: 10px; justify-content: space-between;}
             .${BASE} .sgart-popup .sgart-popup-history button { flex: auto;}
             .${BASE} .sgart-popup .sgart-toolbar.sgart-popup-tabs { gap: 10px; justify-content: flex-start; }
-            .${BASE} .sgart-popup-edit > div { display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 5px 0; }
-            .${BASE} .sgart-popup-edit > div label { width: 120px; flex: none; text-align: right; }
-            .${BASE} .sgart-popup-edit > div input, .${BASE} .sgart-popup-edit > div select { flex: auto; }
+            .${BASE} .sgart-popup-edit { display: flex; flex-direction: row; gap: 10px; margin: 5px 0; }
+            .${BASE} .sgart-popup-edit .sgart-popup-edit-left { flex: 6;}
+            .${BASE} .sgart-popup-edit .sgart-popup-edit-right { flex: 2; display: flex; flex-direction: column; gap: 10px; overflow: auto; max-height: 400px; }
+            .${BASE} .sgart-popup-edit .sgart-popup-edit-right ul { padding: 0 0 0 20px; }
+            .${BASE} .sgart-popup-edit .sgart-form-group { display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 5px 0; }
+            .${BASE} .sgart-popup-edit .sgart-form-group label { width: 120px; flex: none; text-align: right; }
+            .${BASE} .sgart-popup-edit .sgart-form-group input, .${BASE} .sgart-popup-edit .sgart-form-group select { flex: auto; }
             .${BASE} .sgart-popup-edit .sgart-popup-buttons-actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         `;
         const stylePrev = document.head.getElementsByClassName('sgart-inject-style')[0];
@@ -1061,7 +1066,7 @@
         const expandQuery = document.getElementById(HTML_ID_EDIT_EXPAND).value;
         const fullUrl = siteUrl + apiUrl
             + (selectQuery || orderbyQuery || topQuery || skipQuery || filterQuery || expandQuery ? "?" : "")
-            + (selectQuery ? 'select=' + selectQuery : '')
+            + (selectQuery ? '$select=' + selectQuery : '')
             + (orderbyQuery ? '&$orderby=' + orderbyQuery : '')
             + (topQuery ? '&$top=' + topQuery : '')
             + (skipQuery ? '&$skip=' + skipQuery : '')
@@ -1148,7 +1153,7 @@
         let strPrams = "";
         parts.forEach(p => {
             if (p.value !== null && p.paramName !== undefined) {
-                strPrams += "<div>"
+                strPrams += "<div class='sgart-form-group'>"
                     + "<label></label><label>" + p.paramName + "</label>"
                     + "<input name='" + HTML_ID_EDIT_APIURL + "_param' type='text' value=\"" + p.value.htmlEncode() + "\" data-param=\"" + p.paramName + "\" data-number=\"" + p.isNumber + "\"/>"
                     + "</div>";
@@ -1159,22 +1164,28 @@
         }
 
         let html = "<div class='sgart-popup-edit'>"
-            + "<div><label>Full url:</label><strong id='" + HTML_ID_EDIT_SITEFULLURL + "'></strong></div>"
-            + "<div><label>Site url:</label><input id='" + HTML_ID_EDIT_SITEURL + "' type='text' value=\"" + siteUrl.htmlEncode() + "\" /></div>"
-            + "<div><label>Api url:</label><input id='" + HTML_ID_EDIT_APIURL + "' type='text' value=\"" + apiUrl.htmlEncode() + "\" /></div>"
+            + "<div class='sgart-popup-edit-left'>"
+            + "<div class='sgart-form-group'><label>Full url:</label><strong id='" + HTML_ID_EDIT_SITEFULLURL + "'></strong></div>"
+            + "<div class='sgart-form-group'><label>Site url:</label><input id='" + HTML_ID_EDIT_SITEURL + "' type='text' value=\"" + siteUrl.htmlEncode() + "\" /></div>"
+            + "<div class='sgart-form-group'><label>Api url:</label><input id='" + HTML_ID_EDIT_APIURL + "' type='text' value=\"" + apiUrl.htmlEncode() + "\" /></div>"
             + strPrams
-            + "<div><label>$select:</label><input id='" + HTML_ID_EDIT_SELECT + "' type='text' value=\"" + selectQuery.htmlEncode() + "\" title='Comma separated field names'/></div>"
-            + "<div><label>$orderby:</label><input id='" + HTML_ID_EDIT_ORDERBY + "' type='text' value=\"" + orderbyQuery.htmlEncode() + "\" title='InternalName asc or desc'/></div>"
-            + "<div><label>$top:</label><input id='" + HTML_ID_EDIT_TOP + "' type='text' value=\"" + topQuery.htmlEncode() + "\" /></div>"
-            + "<div><label>$skip:</label><input id='" + HTML_ID_EDIT_SKIP + "' type='text' value=\"" + skipQuery.htmlEncode() + "\" /></div>"
-            + "<div><label>$filter:</label><input id='" + HTML_ID_EDIT_FILTER + "' type='text' value=\"" + filterQuery.htmlEncode() + "\" title='OData filter expression, valid operator: Lt, Le, Gt, Ge,Eq, Ne, startswith(...), substringof(...)''/></div>"
-            + "<div><label>$expand:</label><input id='" + HTML_ID_EDIT_EXPAND + "' type='text' value=\"" + expandQuery.htmlEncode() + "\" title='Comma separated field names'/></div>"
-            + "<div>"
+            + "<div class='sgart-form-group'><label for='" + HTML_ID_EDIT_SELECT + "'>$select:</label><input id='" + HTML_ID_EDIT_SELECT + "' type='text' value=\"" + selectQuery.htmlEncode() + "\" title='Comma separated field names'/></div>"
+            + "<div class='sgart-form-group'><label for='" + HTML_ID_EDIT_ORDERBY + "'>$orderby:</label><input id='" + HTML_ID_EDIT_ORDERBY + "' type='text' value=\"" + orderbyQuery.htmlEncode() + "\" title='InternalName asc or desc'/></div>"
+            + "<div class='sgart-form-group'><label for='" + HTML_ID_EDIT_TOP + "'>$top:</label><input id='" + HTML_ID_EDIT_TOP + "' type='text' value=\"" + topQuery.htmlEncode() + "\" /></div>"
+            + "<div class='sgart-form-group'><label for='" + HTML_ID_EDIT_SKIP + "'>$skip:</label><input id='" + HTML_ID_EDIT_SKIP + "' type='text' value=\"" + skipQuery.htmlEncode() + "\" /></div>"
+            + "<div class='sgart-form-group'><label for='" + HTML_ID_EDIT_FILTER + "'>$filter:</label><input id='" + HTML_ID_EDIT_FILTER + "' type='text' value=\"" + filterQuery.htmlEncode() + "\" title='OData filter expression, valid operator: Lt, Le, Gt, Ge,Eq, Ne, startswith(...), substringof(...)''/></div>"
+            + "<div class='sgart-form-group'><label for='" + HTML_ID_EDIT_EXPAND + "'>$expand:</label><input id='" + HTML_ID_EDIT_EXPAND + "' type='text' value=\"" + expandQuery.htmlEncode() + "\" title='Comma separated field names'/></div>"
+            + "<div class='sgart-form-group'>"
             + "<label>More info:</label>"
             + "<a href='https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/use-odata-query-operations-in-sharepoint-rest-requests' target='_blank'>Use OData query operations in SharePoint REST requests</a>"
             + "<div style='flex-grow:1; display:flex; justify-content:flex-end;'><button id='" + HTML_ID_BTN_EDIT_UPDATE + "' class='sgart-button'>Update</button></div>"
             + "</div>"
             + "</div>"
+            + "<div class='sgart-popup-edit-right'>"
+            + "<h3>List fields</h3>"
+            + "<div id='" + HTML_ID_EDIT_LISTFIELDS + "'>only for list</div>"
+            + "</div>"
+            + "</div>";
 
         popup.show("Edit API url", html, handlePopupClickEvent);
         handleEditApiUrlChangeEvent();
@@ -1196,6 +1207,37 @@
             popup.hide();
             handleExecuteClickEvent();
         });
+
+        const apiUrlLower = apiUrl.toLowerCase();
+        if (apiUrlLower.startsWith("/_api/web/lists(") || apiUrlLower.startsWith("/_api/web/lists/getbytitle(")) {
+            console.log("Is list:", apiUrl);
+            document.getElementById(HTML_ID_EDIT_LISTFIELDS).innerHTML = "Loading...";
+
+            let urlForFields = siteUrl;
+            let firstPramFound = false;
+            parts.forEach(p => {
+                if (firstPramFound === false) {
+                    urlForFields += "/" + p.name + (p.value !== null ? "('" + p.value + "')" : "");
+                    if (p.value !== null) {
+                        firstPramFound = true;
+                    }
+                }
+            });
+            const urlForFieldsFull = urlForFields + "/fields?$select=Title,InternalName,TypeAsString,Hidden,ReadOnlyField&$orderby=InternalName";
+            console.log("Fetching list fields for apiUrl:", urlForFieldsFull);
+            fetchGetJson(urlForFieldsFull, false).then(response => {
+                if (response.status === 200) {
+                    const fields = response.data.value.filter(f => f.Hidden === false && f.ReadOnlyField === false);
+                    const fieldsHtml = "<ul>" + fields.map(f => `<li><strong>${f.InternalName}</strong> (${f.Title})</li>`).join("") + "</ul>";
+
+                    const fieldsReadonly = response.data.value.filter(f => f.Hidden === true || f.ReadOnlyField === true);
+                    const fieldReadonlyHtml = "<ul>" + fieldsReadonly.map(f => `<li><strong title="hidden:${f.Hidden}">${f.InternalName}</strong> (${f.Title})</li>`).join("") + "</ul>";
+
+                    document.getElementById(HTML_ID_EDIT_LISTFIELDS).innerHTML = fieldsHtml 
+                        + (fieldReadonlyHtml ? "<h4>Hidden or Read only fields</h4>" + fieldReadonlyHtml : "");
+                }
+            });
+        }
     }
 
     function popupShowExamples() {
